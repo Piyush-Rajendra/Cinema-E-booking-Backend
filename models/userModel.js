@@ -2,6 +2,32 @@
 
 const db = require('../db');
 
+// Function to create users table if it doesn't exist
+const createUsersTable = () => {
+  return new Promise((resolve, reject) => {
+    db.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        fullName VARCHAR(255) NOT NULL,
+        username VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        profilePhoto TEXT,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        age DATE,
+        homeAddress VARCHAR(255),
+        city VARCHAR(255),
+        paymentInfo TEXT
+      )
+    `, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+};
+
 const checkUsernameExists = (username) => {
   return new Promise((resolve, reject) => {
     db.query(
@@ -86,8 +112,10 @@ const getAllUsers = () => {
 };
 
 module.exports = {
+  createUsersTable,
   checkUsernameExists,
   getUserByUsername,
   insertUser,
-  getAllUsers
+  getAllUsers,
+  getUserByUsernameOrEmail
 };

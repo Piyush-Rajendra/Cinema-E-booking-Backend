@@ -6,6 +6,7 @@ const validator = require('validator');
 
 const signUp = async (req, res) => {
   try {
+    await userModel.createUsersTable();
     const {
       fullName,
       username,
