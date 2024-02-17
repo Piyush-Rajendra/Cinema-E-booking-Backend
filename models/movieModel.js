@@ -10,7 +10,6 @@ const createMoviesTable = () => {
       director VARCHAR(255),
       producer VARCHAR(255),
       synopsis TEXT,
-      reviews TEXT,
       trailerPicture TEXT,
       trailerVideo TEXT,
       mpaaRating VARCHAR(10),
@@ -42,7 +41,6 @@ const insertMovie = (movieData) => {
       movieData.director,
       movieData.producer,
       movieData.synopsis,
-      movieData.reviews,
       movieData.trailerPicture,
       movieData.trailerVideo,
       movieData.mpaaRating,
@@ -51,8 +49,41 @@ const insertMovie = (movieData) => {
   );
 };
 
+const insertReview = (reviewData) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      'INSERT INTO reviews (movie_id, username, review) VALUES (?, ?, ?)',
+      [reviewData.movie_id, reviewData.username, reviewData.review],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+  });
+};
+
+
+const getReviewsForMovie = (movieId) => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM reviews WHERE movie_id = ?', [movieId], (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+};
+
 module.exports = {
   createMoviesTable,
   getAllMovies,
   insertMovie,
+  insertReview,
+  getReviewsForMovie,
 };
+

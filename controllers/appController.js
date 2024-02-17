@@ -20,7 +20,6 @@ exports.addMovie = async (req, res) => {
       director,
       producer,
       synopsis,
-      reviews,
       trailerPicture,
       trailerVideo,
       mpaaRating,
@@ -34,7 +33,6 @@ exports.addMovie = async (req, res) => {
       director,
       producer,
       synopsis,
-      reviews,
       trailerPicture,
       trailerVideo,
       mpaaRating,
@@ -42,6 +40,39 @@ exports.addMovie = async (req, res) => {
     });
 
     res.json({ message: 'Movie added successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+exports.addReview = async (req, res) => {
+  try {
+    const {
+      movie_id,
+      username,
+      review
+    } = req.body;
+
+    await movieModel.insertReview({
+      movie_id,
+      username,
+      review
+    });
+
+    res.json({ message: 'Review added successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+exports.getReviewsForMovie = async (req, res) => {
+  try {
+    const movieId = req.params.movieId;
+
+    const reviews = await movieModel.getReviewsForMovie(movieId);
+    res.json(reviews);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
