@@ -14,6 +14,7 @@ const createMoviesTable = () => {
       trailerVideo TEXT,
       mpaaRating VARCHAR(10),
       showDatesTimes TEXT
+      posterBase64 TEXT  -- New column for storing poster as base64
     )
   `);
 };
@@ -45,6 +46,7 @@ const insertMovie = (movieData) => {
       movieData.trailerVideo,
       movieData.mpaaRating,
       movieData.showDatesTimes,
+      movieData.posterBase64,
     ]
   );
 };

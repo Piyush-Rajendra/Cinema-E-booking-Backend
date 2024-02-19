@@ -23,7 +23,8 @@ exports.addMovie = async (req, res) => {
       trailerPicture,
       trailerVideo,
       mpaaRating,
-      showDatesTimes
+      showDatesTimes,
+      posterBase64  // New property for the movie poster
     } = req.body;
 
     await movieModel.insertMovie({
@@ -36,7 +37,8 @@ exports.addMovie = async (req, res) => {
       trailerPicture,
       trailerVideo,
       mpaaRating,
-      showDatesTimes
+      showDatesTimes,
+      posterBase64  // Include the posterBase64 data when calling insertMovie
     });
 
     res.json({ message: 'Movie added successfully' });

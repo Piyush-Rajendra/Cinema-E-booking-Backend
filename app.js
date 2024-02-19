@@ -14,6 +14,9 @@ app.use(authRoutes);
 app.use(adminRoutes);
 app.use(appRoutes);
 
+// Increase payload size limit to 10MB (adjust as needed)
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
 
 
