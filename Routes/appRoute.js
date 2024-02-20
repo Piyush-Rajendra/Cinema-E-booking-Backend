@@ -1,6 +1,6 @@
 // routes/movieRoutes.js
 const express = require('express');
-const movieController = require('../controllers/appController');
+const movieController = require('../controllers/movieController');
 
 const router = express.Router();
 
