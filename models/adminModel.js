@@ -19,6 +19,34 @@ const createAdminsTable = () => {
     });
   };
 
+  const bcrypt = require('bcrypt');
+
+const registerAdmin = (username, password) => {
+  return new Promise((resolve, reject) => {
+    // Generate a salt to use for hashing
+    bcrypt.genSalt(10, (err, salt) => {
+      if (err) {
+        return reject(err);
+      }
+      // Hash the password with the generated salt
+      bcrypt.hash(password, salt, (err, hashedPassword) => {
+        if (err) {
+          return reject(err);
+        }
+        // Insert the hashed password into the database
+        db.query('INSERT INTO admins (username, password) VALUES (?, ?)', [username, hashedPassword], (err, results) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(results);
+          }
+        });
+      });
+    });
+  });
+};
+
+
   const getAdminByUsername = (username) => {
     return new Promise((resolve, reject) => {
       db.query('SELECT * FROM admins WHERE username = ?', [username], (err, results) => {
@@ -46,5 +74,6 @@ const getAllUsers = () => {
 module.exports = {
   getAllUsers,
   getAdminByUsername,
-  
+  registerAdmin,
+  createAdminsTable
 };

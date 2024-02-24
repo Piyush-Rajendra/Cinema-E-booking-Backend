@@ -3,6 +3,22 @@
 const adminModel = require('../models/adminModel');
 const bcrypt = require('bcrypt');
 
+const registerAdmin = require('../models/adminModel').registerAdmin;
+
+const createAdmin = async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    // Call the registerAdmin function from the model
+    await registerAdmin(username, password);
+    res.status(201).json({ message: 'Admin registered successfully' });
+  } catch (error) {
+    console.error('Error registering admin:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
 
 const adminSignIn = async (req, res) => {
     try {
@@ -47,4 +63,5 @@ const getAllUsers = async (req, res) => {
 module.exports = {
   getAllUsers,
   adminSignIn,
+  createAdmin,
 };
