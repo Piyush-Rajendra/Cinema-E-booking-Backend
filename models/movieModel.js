@@ -34,7 +34,7 @@ const getAllMovies = () => {
 
 const insertMovie = (movieData) => {
   return db.query(
-    'INSERT INTO movies (title, category, cast, director, producer, synopsis, reviews, trailerPicture, trailerVideo, mpaaRating, showDatesTimes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    'INSERT INTO movies (title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, showDatesTimes, posterBase64) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
     [
       movieData.title,
       movieData.category,
@@ -50,6 +50,7 @@ const insertMovie = (movieData) => {
     ]
   );
 };
+
 
 const insertReview = (reviewData) => {
   return new Promise((resolve, reject) => {
@@ -67,8 +68,6 @@ const insertReview = (reviewData) => {
     );
   });
 };
-
-
 const getReviewsForMovie = (movieId) => {
   return new Promise((resolve, reject) => {
     db.query('SELECT * FROM reviews WHERE movie_id = ?', [movieId], (err, results) => {
@@ -81,25 +80,6 @@ const getReviewsForMovie = (movieId) => {
   });
 };
 
-
-const getMovieById = (movieId) => {
-  return new Promise((resolve, reject) => {
-    db.query('SELECT * FROM movies WHERE id = ?', [movieId], (err, results) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(results[0]);
-      }
-    });
-  });
-};
-
-module.exports = {
-  getMovieById,
-  // Other functions in your model file
-};
-
-
 module.exports = {
   createMoviesTable,
   getAllMovies,
@@ -107,4 +87,3 @@ module.exports = {
   insertReview,
   getReviewsForMovie,
 };
-
