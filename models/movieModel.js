@@ -34,7 +34,7 @@ const getAllMovies = () => {
 
 const insertMovie = (movieData) => {
   return db.query(
-    'INSERT INTO movies (title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, showDatesTimes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    'INSERT INTO movies (title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, showDatesTimes, posterBase64) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
     [
       movieData.title,
       movieData.category,
@@ -93,11 +93,21 @@ const getMovieById = (movieId) => {
     });
   });
 };
-
-module.exports = {
-  getMovieById,
-  // Other functions in your model file
+const getMovieByName = (movieTitle) => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM movies WHERE title = ?', [movieTitle], (err, results) => {
+      if (err) {
+        console.error('Error executing query:', err);
+        reject(err);
+      } else {
+        console.log('Query results:', results);
+        resolve(results[0]);
+      }
+    });
+  });
 };
+
+
 
 
 module.exports = {
@@ -106,5 +116,7 @@ module.exports = {
   insertMovie,
   insertReview,
   getReviewsForMovie,
+  getMovieById,
+  getMovieByName
 };
 
