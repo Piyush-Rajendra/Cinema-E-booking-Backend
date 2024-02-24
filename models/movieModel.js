@@ -81,6 +81,25 @@ const getReviewsForMovie = (movieId) => {
   });
 };
 
+
+const getMovieById = (movieId) => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM movies WHERE id = ?', [movieId], (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results[0]);
+      }
+    });
+  });
+};
+
+module.exports = {
+  getMovieById,
+  // Other functions in your model file
+};
+
+
 module.exports = {
   createMoviesTable,
   getAllMovies,
