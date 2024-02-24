@@ -34,7 +34,7 @@ const getAllMovies = () => {
 
 const insertMovie = (movieData) => {
   return db.query(
-    'INSERT INTO movies (title, category, cast, director, producer, synopsis, reviews, trailerPicture, trailerVideo, mpaaRating, showDatesTimes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    'INSERT INTO movies (title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, showDatesTimes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
     [
       movieData.title,
       movieData.category,
