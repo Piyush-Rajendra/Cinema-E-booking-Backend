@@ -6,6 +6,7 @@ const authRoutes = require('./Routes/userRoutes');
 const adminRoutes = require('./Routes/adminRoutes');
 const appRoutes = require('./Routes/appRoute');
 
+const cors = require('cors');
 const app = express();
 const port = 3000;
 app.use(cors());

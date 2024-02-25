@@ -22,7 +22,9 @@ const createMoviesTable = () => {
 
 const insertMovie = (movieData) => {
   return db.query(
+
     'INSERT INTO movies (title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, showDatesTimes, posterBase64) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+
     [
       movieData.title,
       movieData.category,
@@ -121,6 +123,6 @@ module.exports = {
   insertReview,
   getReviewsForMovie,
   getMovieById,
-  getMovieByName
+
 };
 
