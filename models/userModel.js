@@ -28,35 +28,7 @@ const createUsersTable = () => {
   });
 };
 
-const checkUsernameExists = (username) => {
-  return new Promise((resolve, reject) => {
-    db.query(
-      'SELECT * FROM users WHERE username = ?',
-      [username],
-      (err, results) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(results.length > 0);
-        }
-      }
-    );
-  });
-};
 
-const getUserByUsernameOrEmail = (usernameOrEmail) => {
-  return new Promise((resolve, reject) => {
-    const query =
-      'SELECT * FROM users WHERE username = ? OR email = ? LIMIT 1';
-    db.query(query, [usernameOrEmail, usernameOrEmail], (err, results) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(results[0]);
-      }
-    });
-  });
-};
 
 const insertUser = (userData) => {
   return new Promise((resolve, reject) => {
@@ -87,9 +59,33 @@ const insertUser = (userData) => {
   });
 };
 
-const getUserByUsername = (username) => {
+const checkUsernameExists = (username) => {
   return new Promise((resolve, reject) => {
-    db.query('SELECT * FROM users WHERE username = ?', [username], (err, results) => {
+    db.query(
+      'SELECT * FROM users WHERE username = ?',
+      [username],
+      (err, results) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(results.length > 0);
+        }
+      }
+    );
+  });
+};
+
+const getUserByUsername = (identifier) => {
+  return new Promise((resolve, reject) => {
+    // Check if the provided identifier is an email or a username
+    const isEmail = identifier.includes('@');
+    
+    // Choose the appropriate query based on the identifier type
+    const query = isEmail
+      ? 'SELECT * FROM users WHERE email = ?'
+      : 'SELECT * FROM users WHERE username = ?';
+
+    db.query(query, [identifier], (err, results) => {
       if (err) {
         reject(err);
       } else {
@@ -113,9 +109,8 @@ const getAllUsers = () => {
 
 module.exports = {
   createUsersTable,
-  checkUsernameExists,
   getUserByUsername,
   insertUser,
   getAllUsers,
-  getUserByUsernameOrEmail
+  checkUsernameExists
 };

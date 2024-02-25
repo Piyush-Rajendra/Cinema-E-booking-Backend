@@ -19,22 +19,12 @@ const createMoviesTable = () => {
   `);
 };
 
-const getAllMovies = () => {
-  return new Promise ((resolve, reject)=>{
-    db.query('SELECT * FROM movies', (err, results)=> {
-      if(err){
-        reject(err);
-      }
-      else{
-        resolve(results);
-      }
-    })
-  })
-};
 
 const insertMovie = (movieData) => {
   return db.query(
-    'INSERT INTO movies (title, category, cast, director, producer, synopsis,  trailerPicture, trailerVideo, mpaaRating, showDatesTimes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+
+    'INSERT INTO movies (title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, showDatesTimes, posterBase64) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+
     [
       movieData.title,
       movieData.category,
@@ -51,6 +41,46 @@ const insertMovie = (movieData) => {
   );
 };
 
+
+const getAllMovies = () => {
+  return new Promise ((resolve, reject)=>{
+    db.query('SELECT * FROM movies', (err, results)=> {
+      if(err){
+        reject(err);
+      }
+      else{
+        resolve(results);
+      }
+    })
+  })
+};
+
+const getMovieById = (movieId) => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM movies WHERE id = ?', [movieId], (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results[0]);
+      }
+    });
+  });
+};
+const getMovieByName = (movieTitle) => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM movies WHERE title = ?', [movieTitle], (err, results) => {
+      if (err) {
+        console.error('Error executing query:', err);
+        reject(err);
+      } else {
+        console.log('Query results:', results);
+        resolve(results[0]);
+      }
+    });
+  });
+};
+
+
 const insertReview = (reviewData) => {
   return new Promise((resolve, reject) => {
     db.query(
@@ -65,7 +95,7 @@ const insertReview = (reviewData) => {
         }
       }
     );
-  });
+  }); 
 };
 
 
@@ -82,22 +112,8 @@ const getReviewsForMovie = (movieId) => {
 };
 
 
-const getMovieById = (movieId) => {
-  return new Promise((resolve, reject) => {
-    db.query('SELECT * FROM movies WHERE id = ?', [movieId], (err, results) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(results[0]);
-      }
-    });
-  });
-};
 
-module.exports = {
-  getMovieById,
-  // Other functions in your model file
-};
+
 
 
 module.exports = {
@@ -107,5 +123,6 @@ module.exports = {
   insertReview,
   getReviewsForMovie,
   getMovieById,
+
 };
 
