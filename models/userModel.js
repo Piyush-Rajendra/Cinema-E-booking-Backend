@@ -59,6 +59,22 @@ const insertUser = (userData) => {
   });
 };
 
+const checkUsernameExists = (username) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      'SELECT * FROM users WHERE username = ?',
+      [username],
+      (err, results) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(results.length > 0);
+        }
+      }
+    );
+  });
+};
+
 const getUserByUsername = (identifier) => {
   return new Promise((resolve, reject) => {
     // Check if the provided identifier is an email or a username
