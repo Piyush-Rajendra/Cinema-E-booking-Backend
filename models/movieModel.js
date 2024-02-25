@@ -19,18 +19,6 @@ const createMoviesTable = () => {
   `);
 };
 
-const getAllMovies = () => {
-  return new Promise ((resolve, reject)=>{
-    db.query('SELECT * FROM movies', (err, results)=> {
-      if(err){
-        reject(err);
-      }
-      else{
-        resolve(results);
-      }
-    })
-  })
-};
 
 const insertMovie = (movieData) => {
   return db.query(
@@ -51,36 +39,19 @@ const insertMovie = (movieData) => {
   );
 };
 
-const insertReview = (reviewData) => {
-  return new Promise((resolve, reject) => {
-    db.query(
-      'INSERT INTO reviews (movie_id, username, review) VALUES (?, ?, ?)',
-      [reviewData.movie_id, reviewData.username, reviewData.review],
-      (err, result) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        } else {
-          resolve(result);
-        }
-      }
-    );
-  });
-};
 
-
-const getReviewsForMovie = (movieId) => {
-  return new Promise((resolve, reject) => {
-    db.query('SELECT * FROM reviews WHERE movie_id = ?', [movieId], (err, results) => {
-      if (err) {
+const getAllMovies = () => {
+  return new Promise ((resolve, reject)=>{
+    db.query('SELECT * FROM movies', (err, results)=> {
+      if(err){
         reject(err);
-      } else {
+      }
+      else{
         resolve(results);
       }
-    });
-  });
+    })
+  })
 };
-
 
 const getMovieById = (movieId) => {
   return new Promise((resolve, reject) => {
@@ -106,6 +77,39 @@ const getMovieByName = (movieTitle) => {
     });
   });
 };
+
+
+const insertReview = (reviewData) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      'INSERT INTO reviews (movie_id, username, review) VALUES (?, ?, ?)',
+      [reviewData.movie_id, reviewData.username, reviewData.review],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+  }); 
+};
+
+
+const getReviewsForMovie = (movieId) => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM reviews WHERE movie_id = ?', [movieId], (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+};
+
+
 
 
 
