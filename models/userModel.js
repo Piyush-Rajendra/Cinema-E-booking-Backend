@@ -112,4 +112,5 @@ module.exports = {
   getUserByUsername,
   insertUser,
   getAllUsers,
+  checkUsernameExists
 };
