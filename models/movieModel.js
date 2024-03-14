@@ -22,7 +22,7 @@ const createMoviesTable = () => {
 
 const insertMovie = (movieData) => {
   return db.query(
-    'INSERT INTO movies (title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, showDatesTimes, posterBase64) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    'INSERT INTO movies (title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, showDatesTimes, posterBase64) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)',
     [
       movieData.title,
       movieData.category,
@@ -78,7 +78,17 @@ const getMovieByName = (movieTitle) => {
   });
 };
 
-
+const createReviewsTable = () => {
+  return db.query(`
+    CREATE TABLE IF NOT EXISTS reviews (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      movie_id INT,
+      username VARCHAR(255),
+      review TEXT,
+      FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE
+    )
+  `);
+};
 const insertReview = (reviewData) => {
   return new Promise((resolve, reject) => {
     db.query(
@@ -93,9 +103,8 @@ const insertReview = (reviewData) => {
         }
       }
     );
-  }); 
+  });
 };
-
 
 const getReviewsForMovie = (movieId) => {
   return new Promise((resolve, reject) => {
@@ -114,8 +123,10 @@ const getReviewsForMovie = (movieId) => {
 
 
 
+
 module.exports = {
   createMoviesTable,
+  createReviewsTable,
   getAllMovies,
   insertMovie,
   insertReview,

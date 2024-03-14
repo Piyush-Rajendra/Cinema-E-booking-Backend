@@ -1,6 +1,7 @@
 // controllers/movieController.js
 const movieModel = require('../models/movieModel');
 
+
 exports.getMovies = async (req, res) => {
   try {
     const movies = await movieModel.getAllMovies();
@@ -48,18 +49,21 @@ exports.addMovie = async (req, res) => {
   }
 };
 
+
 exports.addReview = async (req, res) => {
   try {
-    const {
-      movie_id,
-      username,
-      review
-    } = req.body;
+    const { movie_id, username, review } = req.body;
+
+    // Check if the movie with the provided movie_id exists
+    const movie = await movieModel.getMovieById(movie_id);
+    if (!movie) {
+      return res.status(404).json({ error: 'Movie not found' });
+    }
 
     await movieModel.insertReview({
       movie_id,
       username,
-      review
+      review,
     });
 
     res.json({ message: 'Review added successfully' });
@@ -68,7 +72,6 @@ exports.addReview = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
-
 exports.getReviewsForMovie = async (req, res) => {
   try {
     const movieId = req.params.movieId;

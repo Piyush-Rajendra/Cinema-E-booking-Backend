@@ -2,6 +2,7 @@
 
 const db = require('../db');
 
+
 // Function to create users table if it doesn't exist
 const createUsersTable = () => {
   return new Promise((resolve, reject) => {
@@ -74,7 +75,6 @@ const checkUsernameExists = (username) => {
     );
   });
 };
-
 const getUserByUsername = (identifier) => {
   return new Promise((resolve, reject) => {
     // Check if the provided identifier is an email or a username
@@ -95,6 +95,7 @@ const getUserByUsername = (identifier) => {
   });
 };
 
+
 const getAllUsers = () => {
   return new Promise((resolve, reject) => {
     db.query('SELECT * FROM users', (err, results) => {
@@ -107,10 +108,27 @@ const getAllUsers = () => {
   });
 };
 
+
+// Function to get user by email from the database
+const getUserByEmail = async (email) => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results[0]); // Assuming there's only one user with the given email
+      }
+    });
+  });
+};
+
+// Function to save reset token to the database
+
 module.exports = {
   createUsersTable,
   getUserByUsername,
   insertUser,
   getAllUsers,
-  checkUsernameExists
+  checkUsernameExists,
+  getUserByEmail
 };
