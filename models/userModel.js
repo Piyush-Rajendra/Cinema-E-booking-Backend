@@ -14,10 +14,8 @@ const createUsersTable = () => {
         password VARCHAR(255) NOT NULL,
         profilePhoto TEXT,
         email VARCHAR(255) UNIQUE NOT NULL,
-        age DATE,
         homeAddress VARCHAR(255),
-        city VARCHAR(255),
-        paymentInfo TEXT
+        city VARCHAR(255)
       )
     `, (err) => {
       if (err) {
@@ -31,10 +29,11 @@ const createUsersTable = () => {
 
 
 
+
 const insertUser = (userData) => {
   return new Promise((resolve, reject) => {
     const insertUserQuery =
-      'INSERT INTO users (fullName, username, password, profilePhoto, email, age, homeAddress, city, paymentInfo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+      'INSERT INTO users (fullName, username, password, profilePhoto, email, homeAddress, city) VALUES (?, ?, ?, ?, ?, ?, ?)';
 
     db.query(
       insertUserQuery,
@@ -44,10 +43,8 @@ const insertUser = (userData) => {
         userData.hashedPassword,
         userData.profilePhoto,
         userData.email,
-        userData.age,
         userData.homeAddress,
         userData.city,
-        userData.paymentInfo,
       ],
       (err, results) => {
         if (err) {
@@ -79,7 +76,7 @@ const getUserByUsername = (identifier) => {
   return new Promise((resolve, reject) => {
     // Check if the provided identifier is an email or a username
     const isEmail = identifier.includes('@');
-    
+
     // Choose the appropriate query based on the identifier type
     const query = isEmail
       ? 'SELECT * FROM users WHERE email = ?'
@@ -122,7 +119,86 @@ const getUserByEmail = async (email) => {
   });
 };
 
-// Function to save reset token to the database
+const getUserByID = async (userID) => {
+  return new Promise((resolve, reject) => {
+      db.query('SELECT * FROM users WHERE id = ?', [userID], (err, results) => {
+          if (err) {
+              reject(err);
+          } else {
+              if (results.length === 0) {
+                  reject(new Error('User not found'));
+              } else {
+                  resolve(results[0]);
+              }
+          }
+      });
+  });
+};
+
+
+const checkUserExists = (userId) => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM users WHERE id = ?', [userId], (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results.length > 0);
+      }
+    });
+  });
+};
+
+// Function to add payment information to the database
+const addPayment = (userId, cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode) => {
+  return new Promise((resolve, reject) => {
+    db.query('INSERT INTO payment_info (cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode, userId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode, userId], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
+const updatePayment = (userId, cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode) => {
+  return new Promise((resolve, reject) => {
+    db.query('UPDATE payment_info SET cardType = ?, cardNumberHash = ?, cardPINHash = ?, expirationDate = ?, billingAddress = ?, city = ?, state = ?, zipCode = ? WHERE userId = ?', [cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode, userId], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
+const updateUser = (userID, userData) => {
+  return new Promise((resolve, reject) => {
+    const updateUserQuery =
+      'UPDATE users SET fullName = ?, username = ?, password = ?, profilePhoto = ?, homeAddress = ?, city = ? WHERE id = ?';
+
+    db.query(
+      updateUserQuery,
+      [
+        userData.fullName,
+        userData.username,
+        userData.hashedPassword,
+        userData.profilePhoto,
+        userData.homeAddress,
+        userData.city,
+        userID
+      ],
+      (err, results) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(results);
+        }
+      }
+    );
+  });
+};
 
 module.exports = {
   createUsersTable,
@@ -130,5 +206,10 @@ module.exports = {
   insertUser,
   getAllUsers,
   checkUsernameExists,
-  getUserByEmail
+  getUserByEmail,
+  checkUserExists,
+  addPayment,
+  updatePayment,
+  updateUser,
+  getUserByID
 };

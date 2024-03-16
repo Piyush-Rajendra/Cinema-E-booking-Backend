@@ -59,19 +59,18 @@ exports.addReview = async (req, res) => {
     if (!movie) {
       return res.status(404).json({ error: 'Movie not found' });
     }
-
     await movieModel.insertReview({
       movie_id,
       username,
       review,
     });
-
     res.json({ message: 'Review added successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 exports.getReviewsForMovie = async (req, res) => {
   try {
     const movieId = req.params.movieId;

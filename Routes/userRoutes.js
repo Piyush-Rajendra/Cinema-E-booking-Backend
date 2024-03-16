@@ -13,5 +13,7 @@ router.get('/user/:username', authController.getUserByUsername);
 router.get('/users', authController.getAllUsers);
 router.post('/forgot-password', authController.forgotPassword);
 router.post('/logout', authController.logout);
-
+router.post('/users/:userId/payment', authController.PaymentController);
+router.put('/payment/:userId', authController.updatePaymentInfo);
+router.put('/users/:userID', authController.updateUserDetails);
 module.exports = router;

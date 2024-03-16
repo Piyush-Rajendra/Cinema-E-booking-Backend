@@ -22,5 +22,5 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
 
 app.listen(port, () => {
-  console.log('Server is running on http://localhost:${port}');
+  console.log(`Server is running on http://localhost:${port}`);
 });

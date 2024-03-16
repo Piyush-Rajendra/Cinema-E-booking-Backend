@@ -1,10 +1,9 @@
-// authController.js
-
 const bcrypt = require('bcrypt');
 const userModel = require('../models/userModel');
 const validator = require('validator');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
+require('dotenv').config()
 
 const signUp = async (req, res) => {
   try {
@@ -16,24 +15,19 @@ const signUp = async (req, res) => {
       confirmPassword,
       profilePhoto,
       email,
-      age,
       homeAddress,
       city,
-      paymentInfo,
     } = req.body;
 
-    // Check if username already exists
     const usernameExists = await userModel.checkUsernameExists(username);
     if (usernameExists) {
       return res.status(400).json({ error: 'Username already exists' });
     }
 
-    // Validate email
     if (!validator.isEmail(email)) {
       return res.status(400).json({ error: 'Invalid email format' });
     }
 
-    // Validate password
     if (!isValidPassword(password)) {
       return res.status(400).json({
         error:
@@ -41,30 +35,25 @@ const signUp = async (req, res) => {
       });
     }
 
-    // Encrypt password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Save user data to MySQL
+
     await userModel.insertUser({
       fullName,
       username,
       hashedPassword,
       profilePhoto,
       email,
-      age,
       homeAddress,
-      city,
-      paymentInfo,
+      city
     });
-
-    // Send email after successful registration
     const transporter = nodemailer.createTransport({
       service:'Gmail',
       host: 'smtp.gmail.com',
       port: 587,
       auth: {
           user: 'ecinemabooking387@gmail.com',
-          pass: 'ylnnfoodgxwzawsh'
+          pass: process.env.password
       }
   });
 
@@ -74,9 +63,7 @@ const signUp = async (req, res) => {
       subject: 'Registration Successful',
       text: 'Congratulations! You have successfully registered for our Website.',
     };
-
     await transporter.sendMail(mailOptions);
-
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     console.error(error);
@@ -89,24 +76,15 @@ const signUp = async (req, res) => {
 const signIn = async (req, res) => {
   try {
     const { usernameOrEmail, password } = req.body;
-
-    // Check if username or email exists
     const user = await userModel.getUserByUsername(usernameOrEmail);
-
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-
-    // Check password
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
       return res.status(401).json({ error: 'Incorrect password' });
     }
-
-    // Generate JWT token
     const token = jwt.sign({ userId: user.id }, 'your-secret-key', { expiresIn: '1h' });
-
-    // Successful login with token
     res.json({ message: 'Login successful', token });
     console.log(token)
   } catch (error) {
@@ -127,11 +105,11 @@ const getUserByUsername = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Exclude sensitive information (like password) before sending the response
     const { password, ...userData } = user;
 
     res.json(userData);
-  } catch (error) {
+  } 
+  catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
@@ -140,8 +118,6 @@ const getUserByUsername = async (req, res) => {
 const getAllUsers = async (req, res) => {
   try {
     const users = await userModel.getAllUsers();
-
-    // Exclude sensitive information (like password) before sending the response
     const sanitizedUsers = users.map(({ password, ...userData }) => userData);
 
     res.json(sanitizedUsers);
@@ -160,16 +136,9 @@ const forgotPassword = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-
-    // Generate a random token (you can use a package like 'crypto' for this)
     const token = generateRandomToken();
-
-    // Save the token in the database
     await userModel.saveResetToken(email, token);
-
-    // Send the reset password email
     sendResetPasswordEmail(email, token);
-
     res.status(200).json({ message: 'Password reset email sent' });
   } catch (error) {
     console.error(error);
@@ -177,7 +146,7 @@ const forgotPassword = async (req, res) => {
   }
 };
 
-// Helper function to generate a random token
+
 const generateRandomToken = () => {
   return new Promise((resolve, reject) => {
     crypto.randomBytes(20, (err, buffer) => {
@@ -190,7 +159,7 @@ const generateRandomToken = () => {
   });
 };
 
-// Function to send reset password email
+
 const sendResetPasswordEmail = (email, token) => {
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
@@ -217,23 +186,90 @@ const sendResetPasswordEmail = (email, token) => {
 };
 
 
-// Helper function to validate password
 const isValidPassword = (password) => {
   const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   return passwordRegex.test(password);
 };
 
 const logout = (req, res) => {
-  // Perform any logout-related operations (optional)
-
-  // Respond with a success message
   res.json({ message: 'Logout successful' });
+}
+
+  const PaymentController = async (req, res) => {
+    try {
+      const { cardType, cardNumber, cardPIN, expirationDate, billingAddress, city, state, zipCode } = req.body;
+      const userId = req.params.userId;
+      if (!cardType || !cardNumber || !cardPIN || !expirationDate || !billingAddress || !city || !state || !zipCode)
+      {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+      const cardNumberHash = await bcrypt.hash(cardNumber, 10);
+      const cardPINHash = await bcrypt.hash(cardPIN, 10);
+      await userModel.addPayment(userId, cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode);
+      res.status(201).json({ message: 'Payment information created successfully' });
+    } catch (error) {
+      console.error('Error creating payment information:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+
+
+  
+  const updatePaymentInfo = async (req, res) => {
+    const { userId } = req.params;
+    const { cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode } = req.body;
+    
+    try {
+      
+      const result = await updatePaymentByUserId(userId, cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode);
+      res.status(200).json({ message: 'Payment information updated successfully', data: result });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+  
+  const updateUserDetails = async (req, res) => {
+    const { userID } = req.params;
+    const userData = req.body;
+    try {
+        const user = await userModel.getUserByID(userID);
+        const email = user.email;
+        delete userData.email;
+        if (userData.hashedPassword) {
+            userData.hashedPassword = await bcrypt.hash(userData.hashedPassword, 10);
+        }
+        const transporter = nodemailer.createTransport({
+            service: 'Gmail',
+            host: 'smtp.gmail.com',
+            port: 587,
+            auth: {
+                user: 'ecinemabooking387@gmail.com',
+                pass: process.env.password 
+            }
+        });
+        const mailOptions = {
+            from: '"Booking System" <ecinemabooking387@gmail.com>',
+            to: email, 
+            subject: 'Profile Updated Successfully',
+            text: 'Your profile has been updated successfully.', 
+        };
+        await transporter.sendMail(mailOptions);
+        const result = await userModel.updateUser(userID, userData);
+        res.status(200).json({ message: 'User information updated successfully', data: result });
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).json({ error: 'An error occurred while updating user information.' });
+    }
 };
+
 module.exports = {
   signUp,
   signIn,
   getUserByUsername,
   getAllUsers,
   forgotPassword,
-  logout
+  logout,
+  PaymentController,
+  updatePaymentInfo,
+  updateUserDetails
 };
