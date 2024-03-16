@@ -175,6 +175,34 @@ const checkUsernameExists = (username) => {
   });
 };
 
+const updateUser = (userID, userData) => {
+  return new Promise((resolve, reject) => {
+    const updateUserQuery =
+      'UPDATE users SET fullName = ?, username = ?, password = ?, profilePhoto = ?, homeAddress = ?, city = ? WHERE id = ?';
+
+    db.query(
+      updateUserQuery,
+      [
+        userData.fullName,
+        userData.username,
+        userData.hashedPassword,
+        userData.profilePhoto,
+        userData.homeAddress,
+        userData.city,
+        userID
+      ],
+      (err, results) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(results);
+        }
+      }
+    );
+  });
+};
+
+
 module.exports = {
   createUsersTable,
   getUserByUsername,
@@ -186,4 +214,5 @@ module.exports = {
   addPayment,
   updatePayment,
   getUserByID,
+  updateUser
 };
