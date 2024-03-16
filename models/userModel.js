@@ -57,21 +57,8 @@ const insertUser = (userData) => {
   });
 };
 
-const checkUsernameExists = (username) => {
-  return new Promise((resolve, reject) => {
-    db.query(
-      'SELECT * FROM users WHERE username = ?',
-      [username],
-      (err, results) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(results.length > 0);
-        }
-      }
-    );
-  });
-};
+
+
 const getUserByUsername = (identifier) => {
   return new Promise((resolve, reject) => {
     // Check if the provided identifier is an email or a username
@@ -106,14 +93,13 @@ const getAllUsers = () => {
 };
 
 
-// Function to get user by email from the database
 const getUserByEmail = async (email) => {
   return new Promise((resolve, reject) => {
     db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
       if (err) {
         reject(err);
       } else {
-        resolve(results[0]); // Assuming there's only one user with the given email
+        resolve(results[0]); 
       }
     });
   });
@@ -136,19 +122,6 @@ const getUserByID = async (userID) => {
 };
 
 
-const checkUserExists = (userId) => {
-  return new Promise((resolve, reject) => {
-    db.query('SELECT * FROM users WHERE id = ?', [userId], (err, results) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(results.length > 0);
-      }
-    });
-  });
-};
-
-// Function to add payment information to the database
 const addPayment = (userId, cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode) => {
   return new Promise((resolve, reject) => {
     db.query('INSERT INTO payment_info (cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode, userId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode, userId], (err, result) => {
@@ -173,27 +146,29 @@ const updatePayment = (userId, cardType, cardNumberHash, cardPINHash, expiration
   });
 };
 
-const updateUser = (userID, userData) => {
-  return new Promise((resolve, reject) => {
-    const updateUserQuery =
-      'UPDATE users SET fullName = ?, username = ?, password = ?, profilePhoto = ?, homeAddress = ?, city = ? WHERE id = ?';
 
+const checkUserExists = (userId) => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM users WHERE id = ?', [userId], (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results.length > 0);
+      }
+    });
+  });
+};
+ 
+const checkUsernameExists = (username) => {
+  return new Promise((resolve, reject) => {
     db.query(
-      updateUserQuery,
-      [
-        userData.fullName,
-        userData.username,
-        userData.hashedPassword,
-        userData.profilePhoto,
-        userData.homeAddress,
-        userData.city,
-        userID
-      ],
+      'SELECT * FROM users WHERE username = ?',
+      [username],
       (err, results) => {
         if (err) {
           reject(err);
         } else {
-          resolve(results);
+          resolve(results.length > 0);
         }
       }
     );
@@ -210,6 +185,5 @@ module.exports = {
   checkUserExists,
   addPayment,
   updatePayment,
-  updateUser,
-  getUserByID
+  getUserByID,
 };

@@ -4,6 +4,8 @@ const validator = require('validator');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 require('dotenv').config()
+const crypto = require('crypto'); // For generating random tokens
+
 
 const signUp = async (req, res) => {
   try {
@@ -165,7 +167,7 @@ const sendResetPasswordEmail = (email, token) => {
     service: 'Gmail',
     auth: {
       user: 'ecinemabooking387@gmail.com',
-      pass: 'ylnnfoodgxwzawsh'
+      pass: process.env.password
     },
   });
 
@@ -262,6 +264,46 @@ const logout = (req, res) => {
     }
 };
 
+   requestReset =  async(req, res) => {
+      try {
+          const { email } = req.body;
+
+          const user = await userModel.getUserByEmail(email);
+          if (!user) {
+              return res.status(404).json({ error: 'User not found' });
+          }
+
+          const token = crypto.randomBytes(20).toString('hex');
+
+          const transporter = nodemailer.createTransport({
+            service: 'Gmail',
+            host: 'smtp.gmail.com',
+            port: 587,
+            auth: {
+                user: 'ecinemabooking387@gmail.com',
+                pass: process.env.password 
+            }
+          });
+          const mailOptions = {
+              from: '"Password Reset System" <noreply@example.com>',
+              to: email,
+              subject: 'Password Reset',
+              html: `<p>You are receiving this email because you (or someone else) have requested the reset of the password for your account.</p>
+                     <p>Please click on the following link, or paste this into your browser to complete the process:</p>
+                     <p><a href="http://localhost:3000/reset/${token}">Reset Password</a></p>
+                     <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`,
+          };
+
+          await transporter.sendMail(mailOptions);
+
+          return res.status(200).json({ message: 'Password reset email sent' });
+      } catch (error) {
+          console.error('Error:', error);
+          return res.status(500).json({ error: 'Internal server error' });
+      }
+  },
+
+
 module.exports = {
   signUp,
   signIn,
@@ -271,5 +313,6 @@ module.exports = {
   logout,
   PaymentController,
   updatePaymentInfo,
-  updateUserDetails
+  updateUserDetails,
+  requestReset
 };
