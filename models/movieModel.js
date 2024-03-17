@@ -13,8 +13,21 @@ const createMoviesTable = () => {
       trailerPicture TEXT,
       trailerVideo TEXT,
       mpaaRating VARCHAR(10),
-      showDatesTimes TEXT
-      posterBase64 TEXT  -- New column for storing poster as base64
+      showDatesTimes TEXT,
+      posterBase64 TEXT 
+    )
+  `);
+};
+
+
+const createReviewsTable = () => {
+  return db.query(`
+    CREATE TABLE IF NOT EXISTS reviews (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      movie_id INT,
+      username VARCHAR(255),
+      review TEXT,
+      FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE
     )
   `);
 };
@@ -41,12 +54,12 @@ const insertMovie = (movieData) => {
 
 
 const getAllMovies = () => {
-  return new Promise ((resolve, reject)=>{
-    db.query('SELECT * FROM movies', (err, results)=> {
-      if(err){
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM movies', (err, results) => {
+      if (err) {
         reject(err);
       }
-      else{
+      else {
         resolve(results);
       }
     })
@@ -78,17 +91,6 @@ const getMovieByName = (movieTitle) => {
   });
 };
 
-const createReviewsTable = () => {
-  return db.query(`
-    CREATE TABLE IF NOT EXISTS reviews (
-      id INT PRIMARY KEY AUTO_INCREMENT,
-      movie_id INT,
-      username VARCHAR(255),
-      review TEXT,
-      FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE
-    )
-  `);
-};
 const insertReview = (reviewData) => {
   return new Promise((resolve, reject) => {
     db.query(
@@ -119,6 +121,14 @@ const getReviewsForMovie = (movieId) => {
 };
 
 
+const createTables = async () => {
+  try {
+    await createMoviesTable();
+    await createReviewsTable();
+  } catch (err) {
+    throw err;
+  }
+};
 
 
 
@@ -132,6 +142,8 @@ module.exports = {
   insertReview,
   getReviewsForMovie,
   getMovieById,
-  getMovieByName
+  getMovieByName,
+  createTables
+  
 };
 

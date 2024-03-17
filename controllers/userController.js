@@ -6,7 +6,6 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const crypto = require('crypto'); // For generating random tokens
 
-
 const signUp = async (req, res) => {
   try {
     await userModel.createUsersTable();
@@ -39,7 +38,10 @@ const signUp = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Generate a verification token
+    const verificationToken = crypto.randomBytes(20).toString('hex');
 
+    // Insert user data with status 'inactive' and verification token
     await userModel.insertUser({
       fullName,
       username,
@@ -47,26 +49,55 @@ const signUp = async (req, res) => {
       profilePhoto,
       email,
       homeAddress,
-      city
+      city,
+      status: 'inactive',
+      verificationToken,
     });
+
+    // Send verification email
+    const verificationLink = `http://${req.headers.host}/verify-email/${verificationToken}`;
     const transporter = nodemailer.createTransport({
-      service:'Gmail',
+      service: 'Gmail',
       host: 'smtp.gmail.com',
       port: 587,
       auth: {
-          user: 'ecinemabooking387@gmail.com',
-          pass: process.env.password
-      }
-  });
+        user: 'ecinemabooking387@gmail.com',
+        pass: process.env.password,
+      },
+    });
 
     const mailOptions = {
       from: '"Booking System" <ecinemabooking387@gmail.com>',
       to: email,
       subject: 'Registration Successful',
-      text: 'Congratulations! You have successfully registered for our Website.',
+      html: `Congratulations! You have successfully registered for our Website. <br>Click <a href="${verificationLink}"><button style="background-color:green;color:white;padding:10px;border:none;cursor:pointer;"> <br> Click to Verify</button></a> to verify your email.`,
     };
+
     await transporter.sendMail(mailOptions);
     res.status(201).json({ message: 'User registered successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+// Verification route
+const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    // Find user by verification token
+    const user = await userModel.findUserByVerificationToken(token);
+
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired token' });
+    }
+
+    // Update user's status to 'active'
+    await userModel.updateUserStatus(user.id, 'active');
+
+    // Send success response to the frontend
+    res.status(200).json({ message: 'Email verification successful' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -264,7 +295,7 @@ const logout = (req, res) => {
     }
 };
 
-   requestReset =  async(req, res) => {
+   const requestReset =  async(req, res) => {
       try {
           const { email } = req.body;
 
@@ -293,7 +324,7 @@ const logout = (req, res) => {
                      <p><a href="http://localhost:3000/reset/${token}">Reset Password</a></p>
                      <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`,
           };
-
+          console.log(token)
           await transporter.sendMail(mailOptions);
 
           return res.status(200).json({ message: 'Password reset email sent' });
@@ -301,7 +332,10 @@ const logout = (req, res) => {
           console.error('Error:', error);
           return res.status(500).json({ error: 'Internal server error' });
       }
-  },
+    }
+  
+
+
 
 
 module.exports = {
@@ -314,5 +348,6 @@ module.exports = {
   PaymentController,
   updatePaymentInfo,
   updateUserDetails,
-  requestReset
+  requestReset,
+  verifyEmail
 };

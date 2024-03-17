@@ -15,7 +15,9 @@ const createUsersTable = () => {
         profilePhoto TEXT,
         email VARCHAR(255) UNIQUE NOT NULL,
         homeAddress VARCHAR(255),
-        city VARCHAR(255)
+        city VARCHAR(255),
+        status ENUM('active', 'inactive') NOT NULL DEFAULT 'inactive',
+        verificationToken VARCHAR(255) NULL
       )
     `, (err) => {
       if (err) {
@@ -27,13 +29,49 @@ const createUsersTable = () => {
   });
 };
 
+// Function to create payment_info table
+const createPaymentInfoTable = () => {
+  return new Promise((resolve, reject) => {
+    db.query(`
+      CREATE TABLE IF NOT EXISTS payment_info (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        cardType VARCHAR(255) NOT NULL,
+        cardNumberHash VARCHAR(255) NOT NULL,
+        cardPINHash VARCHAR(255) NOT NULL,
+        expirationDate DATE NOT NULL,
+        billingAddress VARCHAR(255) NOT NULL,
+        city VARCHAR(255) NOT NULL,
+        state VARCHAR(255) NOT NULL,
+        zipCode VARCHAR(20) NOT NULL,
+        userId INT NOT NULL,
+        FOREIGN KEY (userId) REFERENCES users(id)
+      )
+    `, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+};
+
+// Function to create both tables
+const createTables = async () => {
+  try {
+    await createUsersTable();
+    await createPaymentInfoTable();
+  } catch (err) {
+    throw err;
+  }
+};
 
 
 
 const insertUser = (userData) => {
   return new Promise((resolve, reject) => {
     const insertUserQuery =
-      'INSERT INTO users (fullName, username, password, profilePhoto, email, homeAddress, city) VALUES (?, ?, ?, ?, ?, ?, ?)';
+      'INSERT INTO users (fullName, username, password, profilePhoto, email, homeAddress, city, verificationToken) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
 
     db.query(
       insertUserQuery,
@@ -45,6 +83,7 @@ const insertUser = (userData) => {
         userData.email,
         userData.homeAddress,
         userData.city,
+        userData.verificationToken, // Include verification token here
       ],
       (err, results) => {
         if (err) {
@@ -58,13 +97,11 @@ const insertUser = (userData) => {
 };
 
 
-
 const getUserByUsername = (identifier) => {
   return new Promise((resolve, reject) => {
-    // Check if the provided identifier is an email or a username
+
     const isEmail = identifier.includes('@');
 
-    // Choose the appropriate query based on the identifier type
     const query = isEmail
       ? 'SELECT * FROM users WHERE email = ?'
       : 'SELECT * FROM users WHERE username = ?';
@@ -99,7 +136,7 @@ const getUserByEmail = async (email) => {
       if (err) {
         reject(err);
       } else {
-        resolve(results[0]); 
+        resolve(results[0]);
       }
     });
   });
@@ -107,17 +144,17 @@ const getUserByEmail = async (email) => {
 
 const getUserByID = async (userID) => {
   return new Promise((resolve, reject) => {
-      db.query('SELECT * FROM users WHERE id = ?', [userID], (err, results) => {
-          if (err) {
-              reject(err);
-          } else {
-              if (results.length === 0) {
-                  reject(new Error('User not found'));
-              } else {
-                  resolve(results[0]);
-              }
-          }
-      });
+    db.query('SELECT * FROM users WHERE id = ?', [userID], (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        if (results.length === 0) {
+          reject(new Error('User not found'));
+        } else {
+          resolve(results[0]);
+        }
+      }
+    });
   });
 };
 
@@ -158,7 +195,7 @@ const checkUserExists = (userId) => {
     });
   });
 };
- 
+
 const checkUsernameExists = (username) => {
   return new Promise((resolve, reject) => {
     db.query(
@@ -202,6 +239,32 @@ const updateUser = (userID, userData) => {
   });
 };
 
+const findUserByVerificationToken = (token) => {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT * FROM users WHERE verificationToken = ?';
+    db.query(query, [token], (err, results) => {
+      if (err) {
+        console.error('Error finding user by verification token:', err);
+        reject(err);
+      } else {
+        resolve(results[0]);
+      }
+    });
+  });
+};
+
+    
+
+const updateUserStatus = async (userId, status) => {
+  try {
+    const query = 'UPDATE users SET status = ? WHERE id = ?';
+    await db.query(query, [status, userId]);
+  } catch (error) {
+    console.error('Error updating user status:', error);
+    throw error;
+  }
+};
+
 
 module.exports = {
   createUsersTable,
@@ -214,5 +277,8 @@ module.exports = {
   addPayment,
   updatePayment,
   getUserByID,
-  updateUser
+  updateUser,
+  updateUserStatus,
+  findUserByVerificationToken,
+  createTables
 };
