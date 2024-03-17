@@ -18,6 +18,7 @@ const signUp = async (req, res) => {
       email,
       homeAddress,
       city,
+      registerForPromotion ,
     } = req.body;
 
     const usernameExists = await userModel.checkUsernameExists(username);
@@ -52,6 +53,7 @@ const signUp = async (req, res) => {
       city,
       status: 'inactive',
       verificationToken,
+      registerForPromotion ,
     });
 
     // Send verification email
@@ -148,6 +150,21 @@ const getUserByUsername = async (req, res) => {
   }
 };
 
+const getUserByEmailController = async (req, res) => {
+  const { email } = req.params;
+
+  try {
+    const user = await userModel.getUserByEmail(email);
+    if (user) {
+      res.status(200).json(user);
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
 const getAllUsers = async (req, res) => {
   try {
     const users = await userModel.getAllUsers();
@@ -158,64 +175,6 @@ const getAllUsers = async (req, res) => {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
-};
-
-
-const forgotPassword = async (req, res) => {
-  const { email } = req.body;
-
-  try {
-    const user = await userModel.getUserByEmail(email);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    const token = generateRandomToken();
-    await userModel.saveResetToken(email, token);
-    sendResetPasswordEmail(email, token);
-    res.status(200).json({ message: 'Password reset email sent' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
-
-
-const generateRandomToken = () => {
-  return new Promise((resolve, reject) => {
-    crypto.randomBytes(20, (err, buffer) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(buffer.toString('hex'));
-      }
-    });
-  });
-};
-
-
-const sendResetPasswordEmail = (email, token) => {
-  const transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth: {
-      user: 'ecinemabooking387@gmail.com',
-      pass: process.env.password
-    },
-  });
-
-  const mailOptions = {
-    from: '"Booking System" <ecinemabooking387@gmail.com>',
-    to: email,
-    subject: 'Password Reset',
-    text: `Click the following link to reset your password: http://example.com/reset-password?token=${token}`,
-  };
-  console.log(token)
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error('Error sending email:', error);
-    } else {
-      console.log('Email sent:', info.response);
-    }
-  });
 };
 
 
@@ -334,7 +293,21 @@ const logout = (req, res) => {
       }
     }
   
-
+    
+    const updatePassword = async (req, res) => {
+      const { email, newPassword } = req.body;
+    
+      try {
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+        await userModel.updatePassword(email, hashedPassword);
+    
+        res.status(200).json({ message: 'Password updated successfully' });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    };
 
 
 
@@ -343,11 +316,12 @@ module.exports = {
   signIn,
   getUserByUsername,
   getAllUsers,
-  forgotPassword,
   logout,
   PaymentController,
   updatePaymentInfo,
   updateUserDetails,
   requestReset,
-  verifyEmail
+  verifyEmail,
+  getUserByEmailController,
+  updatePassword
 };

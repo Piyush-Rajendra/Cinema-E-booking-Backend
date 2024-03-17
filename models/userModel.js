@@ -71,7 +71,7 @@ const createTables = async () => {
 const insertUser = (userData) => {
   return new Promise((resolve, reject) => {
     const insertUserQuery =
-      'INSERT INTO users (fullName, username, password, profilePhoto, email, homeAddress, city, verificationToken) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+      'INSERT INTO users (fullName, username, password, profilePhoto, email, homeAddress, city, verificationToken, registerForPromotion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'; // Modify the query to include registerForPromotion
 
     db.query(
       insertUserQuery,
@@ -83,7 +83,8 @@ const insertUser = (userData) => {
         userData.email,
         userData.homeAddress,
         userData.city,
-        userData.verificationToken, // Include verification token here
+        userData.verificationToken,
+        userData.registerForPromotion // Include registerForPromotion here
       ],
       (err, results) => {
         if (err) {
@@ -95,6 +96,7 @@ const insertUser = (userData) => {
     );
   });
 };
+
 
 
 const getUserByUsername = (identifier) => {
@@ -265,6 +267,18 @@ const updateUserStatus = async (userId, status) => {
   }
 };
 
+const updatePassword = async (email, password) => {
+  return new Promise((resolve, reject) => {
+    db.query('UPDATE users SET password = ? WHERE email = ?', [email, password], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
 
 module.exports = {
   createUsersTable,
@@ -280,5 +294,6 @@ module.exports = {
   updateUser,
   updateUserStatus,
   findUserByVerificationToken,
-  createTables
+  createTables,
+  updatePassword,
 };

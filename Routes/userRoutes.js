@@ -17,4 +17,6 @@ router.post('/users/:userId/payment', authController.PaymentController);
 router.put('/payment/:userId', authController.updatePaymentInfo);
 router.put('/users/:userID', authController.updateUserDetails);
 router.get('/verify-email/:token', authController.verifyEmail);
+router.get('/users/:email', authController.getUserByEmailController);
+router.post('/reset-password', authController.updatePassword);
 module.exports = router;
