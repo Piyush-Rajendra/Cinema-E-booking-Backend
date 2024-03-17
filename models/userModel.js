@@ -14,8 +14,10 @@ const createUsersTable = () => {
         password VARCHAR(255) NOT NULL,
         profilePhoto TEXT,
         email VARCHAR(255) UNIQUE NOT NULL,
-        homeAddress VARCHAR(255),
+        street VARCHAR(255),
         city VARCHAR(255),
+        state VARCHAR(255),
+        zipCode VARCHAR(255),
         status ENUM('active', 'inactive') NOT NULL DEFAULT 'inactive',
         verificationToken VARCHAR(255) NULL
       )
@@ -56,6 +58,9 @@ const createPaymentInfoTable = () => {
   });
 };
 
+
+
+
 // Function to create both tables
 const createTables = async () => {
   try {
@@ -71,7 +76,7 @@ const createTables = async () => {
 const insertUser = (userData) => {
   return new Promise((resolve, reject) => {
     const insertUserQuery =
-      'INSERT INTO users (fullName, username, password, profilePhoto, email, homeAddress, city, verificationToken, registerForPromotion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'; // Modify the query to include registerForPromotion
+      'INSERT INTO users (fullName, username, password, profilePhoto, email, street, city, state, zipCode verificationToken, registerForPromotion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'; // Modify the query to include registerForPromotion
 
     db.query(
       insertUserQuery,
@@ -81,8 +86,10 @@ const insertUser = (userData) => {
         userData.hashedPassword,
         userData.profilePhoto,
         userData.email,
-        userData.homeAddress,
+        userData.street,
         userData.city,
+        userData.state,
+        userData.zipCode,
         userData.verificationToken,
         userData.registerForPromotion // Include registerForPromotion here
       ],
@@ -217,7 +224,7 @@ const checkUsernameExists = (username) => {
 const updateUser = (userID, userData) => {
   return new Promise((resolve, reject) => {
     const updateUserQuery =
-      'UPDATE users SET fullName = ?, username = ?, password = ?, profilePhoto = ?, homeAddress = ?, city = ? WHERE id = ?';
+      'UPDATE users SET fullName = ?, username = ?, password = ?, profilePhoto = ?, homeAddress = ?, city = ?, registerForPromotion = ?, phoneNumber = ? WHERE id = ?';
 
     db.query(
       updateUserQuery,
@@ -228,6 +235,8 @@ const updateUser = (userID, userData) => {
         userData.profilePhoto,
         userData.homeAddress,
         userData.city,
+        userData.registerForPromotion,
+        userData.phoneNumber,
         userID
       ],
       (err, results) => {
@@ -240,6 +249,7 @@ const updateUser = (userID, userData) => {
     );
   });
 };
+
 
 const findUserByVerificationToken = (token) => {
   return new Promise((resolve, reject) => {
@@ -279,6 +289,18 @@ const updatePassword = async (email, password) => {
   });
 };
 
+const getPaymentByUserID = async (userID) => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM payment_info WHERE userId = ?', [userID], (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+};
+
 
 module.exports = {
   createUsersTable,
@@ -296,4 +318,5 @@ module.exports = {
   findUserByVerificationToken,
   createTables,
   updatePassword,
+  getPaymentByUserID
 };

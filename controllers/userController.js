@@ -16,9 +16,12 @@ const signUp = async (req, res) => {
       confirmPassword,
       profilePhoto,
       email,
-      homeAddress,
+      street,
       city,
+      state,
+      zipCode,
       registerForPromotion ,
+      phoneNumber,
     } = req.body;
 
     const usernameExists = await userModel.checkUsernameExists(username);
@@ -49,11 +52,14 @@ const signUp = async (req, res) => {
       hashedPassword,
       profilePhoto,
       email,
-      homeAddress,
+      street,
       city,
+      state,
+      zipCode,
       status: 'inactive',
       verificationToken,
       registerForPromotion ,
+      phoneNumber,
     });
 
     // Send verification email
@@ -176,6 +182,7 @@ const getAllUsers = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 
 
 const isValidPassword = (password) => {
@@ -309,6 +316,16 @@ const logout = (req, res) => {
       }
     };
 
+    const getPaymentInfoByUser = async (req, res) => {
+      try {
+        const userID = req.params.id;
+        const paymentInfo = await userModel.getPaymentByUserID(userID);
+        res.status(200).json({ paymentInfo });
+      } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+      }
+    };
+
 
 
 module.exports = {
@@ -323,5 +340,6 @@ module.exports = {
   requestReset,
   verifyEmail,
   getUserByEmailController,
-  updatePassword
+  updatePassword,
+  getPaymentInfoByUser
 };
