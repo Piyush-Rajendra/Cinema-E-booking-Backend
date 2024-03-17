@@ -35,7 +35,7 @@ adminModel.createAdminsTable()
   console.log('Admin table has been created');
 })
 .catch ((err)=>{
-    console.error('Error creating Admin Table');
+    console.error('Error creating Admin Table', err);
 })
 
 movieModel.createTables()
@@ -43,7 +43,7 @@ movieModel.createTables()
   console.log('Table has been created');
 })
 .catch ((err)=>{
-    console.error('Error creating Table');
+    console.error('Error creating Table', err);
 })
 
 

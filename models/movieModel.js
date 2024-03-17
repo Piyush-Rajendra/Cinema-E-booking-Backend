@@ -1,7 +1,8 @@
 const db = require('../db');
 
 const createMoviesTable = () => {
-  return db.query(`
+  return new Promise((resolve, reject) => {
+   db.query(`
     CREATE TABLE IF NOT EXISTS movies (
       id INT PRIMARY KEY AUTO_INCREMENT,
       title VARCHAR(255) NOT NULL,
@@ -16,12 +17,21 @@ const createMoviesTable = () => {
       showDatesTimes TEXT,
       posterBase64 TEXT 
     )
-  `);
+  `,
+  (err) => {
+    if (err) {
+      reject(err);
+    } else {
+      resolve();
+    }
+  });
+});
 };
 
 
 const createReviewsTable = () => {
-  return db.query(`
+  return new Promise((resolve, reject)=> {
+    db.query(`
     CREATE TABLE IF NOT EXISTS reviews (
       id INT PRIMARY KEY AUTO_INCREMENT,
       movie_id INT,
@@ -29,7 +39,15 @@ const createReviewsTable = () => {
       review TEXT,
       FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE
     )
-  `);
+  `),
+  (err) => {
+    if (err) {
+      reject(err);
+    } else {
+      resolve();
+    }
+  };
+  })
 };
 
 
@@ -144,6 +162,5 @@ module.exports = {
   getMovieById,
   getMovieByName,
   createTables
-  
 };
 
