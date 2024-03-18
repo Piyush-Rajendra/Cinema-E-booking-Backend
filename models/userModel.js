@@ -237,7 +237,7 @@ const checkUsernameExists = (username) => {
 const updateUser = (userID, userData) => {
   return new Promise((resolve, reject) => {
     const updateUserQuery =
-      'UPDATE users SET fullName = ?, username = ?, password = ?, profilePhoto = ?, street = ?, city = ?, state = ?, zipCode = ?, registerForPromotion = ?, phoneNumber = ? WHERE id = ?';
+      'UPDATE users SET fullName = ?, username = ?,profilePhoto = ?, street = ?, city = ?, state = ?, zipCode = ?, registerForPromotion = ?, phoneNumber = ? WHERE id = ?';
 
     db.query(
       updateUserQuery,
