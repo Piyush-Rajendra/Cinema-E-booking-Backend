@@ -212,6 +212,26 @@ const logout = (req, res) => {
     }
   };
 
+  
+  const PaymentController2 = async (req, res) => {
+    try {
+      const { cardType, cardNumber, cardPIN, expirationDate} = req.body;
+      const userId = req.params.userId;
+      if (!cardType || !cardNumber || !cardPIN || !expirationDate)
+      {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+      const cardNumberHash = await bcrypt.hash(cardNumber, 10);
+      const cardPINHash = await bcrypt.hash(cardPIN, 10);
+      await userModel.addPayment2(userId, cardType, cardNumberHash, cardPINHash, expirationDate);
+      res.status(201).json({ message: 'Payment information created successfully' });
+    } catch (error) {
+      console.error('Error creating payment information:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+
+
 
   
   const updatePaymentInfo = async (req, res) => {
@@ -363,5 +383,6 @@ module.exports = {
   updatePassword,
   getPaymentInfoByUser,
   deletePaymentInfoById,
-  getPaymentInfoById
+  getPaymentInfoById,
+  PaymentController2
 };

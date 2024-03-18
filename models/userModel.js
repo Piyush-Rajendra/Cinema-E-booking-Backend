@@ -193,6 +193,19 @@ const addPayment = (userId, cardType, cardNumberHash, cardPINHash, expirationDat
   });
 };
 
+const addPayment2 = (userId, cardType, cardNumberHash, cardPINHash, expirationDate) => {
+  return new Promise((resolve, reject) => {
+    db.query('INSERT INTO payment_info (cardType, cardNumberHash, cardPINHash, expirationDate, userId) VALUES (?, ?, ?, ?, ?)', [cardType, cardNumberHash, cardPINHash, expirationDate,userId], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
+
 const updatePayment = (userId, cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode) => {
   return new Promise((resolve, reject) => {
     db.query('UPDATE payment_info SET cardType = ?, cardNumberHash = ?, cardPINHash = ?, expirationDate = ?, billingAddress = ?, city = ?, state = ?, zipCode = ? WHERE userId = ?', [cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode, userId], (err, result) => {
@@ -359,5 +372,6 @@ module.exports = {
   updatePassword,
   getPaymentByUserID,
   DeletepaymentInfoId,
-  getPaymentByID
+  getPaymentByID,
+  addPayment2
 };
