@@ -76,22 +76,22 @@ const createTables = async () => {
 const insertUser = (userData) => {
   return new Promise((resolve, reject) => {
     const insertUserQuery =
-      'INSERT INTO users (fullName, username, password, profilePhoto, email, street, phoneNumber, city, state, zipCode verificationToken, registerForPromotion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?, ?)'; // Modify the query to include registerForPromotion
+      'INSERT INTO users (fullName, username, password, profilePhoto, email, street, phoneNumber, city, state, zipCode, registerForPromotion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
     db.query(
       insertUserQuery,
       [
         userData.fullName,
         userData.username,
-        userData.hashedPassword,
+        userData.hashedPassword, // Assuming this is properly hashed
         userData.profilePhoto,
         userData.email,
         userData.street,
+        userData.phoneNumber, // Include phoneNumber here
         userData.city,
         userData.state,
         userData.zipCode,
-        userData.verificationToken,
-        userData.registerForPromotion // Include registerForPromotion here
+        userData.registerForPromotion
       ],
       (err, results) => {
         if (err) {
