@@ -216,11 +216,9 @@ const logout = (req, res) => {
   
   const updatePaymentInfo = async (req, res) => {
     const { userId } = req.params;
-    const { cardType, cardNumber, cardPIN, expirationDate, billingAddress, city, state, zipCode } = req.body;
+    const { cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode } = req.body;
     
     try {
-      const cardNumberHash = await bcrypt.hash(cardNumber, 10);
-      const cardPINHash = await bcrypt.hash(cardPIN, 10);
       const result = await userModel.updatePayment(userId, cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode);
       res.status(200).json({ message: 'Payment information updated successfully', data: result });
     } catch (error) {
