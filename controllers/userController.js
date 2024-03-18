@@ -235,7 +235,6 @@ const logout = (req, res) => {
       res.status(500).json({ success: false, error: error.message });
     }
   };
-
   const updateUserDetails = async (req, res) => {
     const { userID } = req.params;
     const userData = req.body;
@@ -246,7 +245,7 @@ const logout = (req, res) => {
         if (userData.hashedPassword) {
             userData.hashedPassword = await bcrypt.hash(userData.hashedPassword, 10);
         }
-        delete userData.hashedPassword;
+        // Remove this line: delete userData.hashedPassword;
         const transporter = nodemailer.createTransport({
             service: 'Gmail',
             host: 'smtp.gmail.com',

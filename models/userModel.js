@@ -236,35 +236,33 @@ const checkUsernameExists = (username) => {
 
 const updateUser = (userID, userData) => {
   return new Promise((resolve, reject) => {
-    const updateUserQuery =
-      'UPDATE users SET fullName = ?, username = ?,profilePhoto = ?, street = ?, city = ?, state = ?, zipCode = ?, registerForPromotion = ?, phoneNumber = ? WHERE id = ?';
+      const updateUserQuery =
+          'UPDATE users SET fullName = ?, username = ?, profilePhoto = ?, street = ?, city = ?, state = ?, zipCode = ?, registerForPromotion = ?, phoneNumber = ? WHERE id = ?';
 
-    db.query(
-      updateUserQuery,
-      [
-        userData.fullName,
-        userData.username,
-        userData.hashedPassword, // Assuming this is properly hashed
-        userData.profilePhoto,
-        userData.street,
-        userData.city,
-        userData.state,
-        userData.zipCode,
-        userData.registerForPromotion,
-        userData.phoneNumber,
-        userID
-      ],
-      (err, results) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(results);
-        }
-      }
-    );
+      db.query(
+          updateUserQuery,
+          [
+              userData.fullName,
+              userData.username,
+              userData.profilePhoto,
+              userData.street,
+              userData.city,
+              userData.state,
+              userData.zipCode,
+              userData.registerForPromotion,
+              userData.phoneNumber,
+              userID
+          ],
+          (err, results) => {
+              if (err) {
+                  reject(err);
+              } else {
+                  resolve(results);
+              }
+          }
+      );
   });
 };
-
 
 
 const findUserByVerificationToken = (token) => {
