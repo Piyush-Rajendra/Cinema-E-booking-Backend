@@ -73,11 +73,10 @@ const createTables = async () => {
 };
 
 
-
 const insertUser = (userData) => {
   return new Promise((resolve, reject) => {
     const insertUserQuery =
-      'INSERT INTO users (fullName, username, password, profilePhoto, email, street, phoneNumber, city, state, zipCode,verificationToken, registerForPromotion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+      'INSERT INTO users (fullName, username, password, profilePhoto, email, street, phoneNumber, city, state, zipCode, verificationToken, registerForPromotion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
     db.query(
       insertUserQuery,
@@ -92,6 +91,7 @@ const insertUser = (userData) => {
         userData.city,
         userData.state,
         userData.zipCode,
+        userData.verificationToken, // Include verificationToken here
         userData.registerForPromotion
       ],
       (err, results) => {
