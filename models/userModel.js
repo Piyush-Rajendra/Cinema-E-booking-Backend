@@ -283,15 +283,29 @@ const updateUserStatus = async (userId, status) => {
 
 const updatePassword = async (email, password) => {
   return new Promise((resolve, reject) => {
-    db.query('UPDATE users SET password = ? WHERE email = ?', [email, password], (err, result) => {
+    // Check if email exists
+    db.query('SELECT * FROM users WHERE email = ?', [email], (err, rows) => {
       if (err) {
         reject(err);
       } else {
-        resolve(result);
+        if (rows.length === 0) {
+          // Email doesn't exist, reject with an error message
+          reject(new Error('Email not found'));
+        } else {
+          // Email exists, proceed to update password
+          db.query('UPDATE users SET password = ? WHERE email = ?', [password, email], (err, result) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(result);
+            }
+          });
+        }
       }
     });
   });
 };
+
 
 const getPaymentByUserID = async (userID) => {
   return new Promise((resolve, reject) => {
