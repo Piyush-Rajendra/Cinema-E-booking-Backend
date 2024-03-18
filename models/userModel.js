@@ -76,7 +76,7 @@ const createTables = async () => {
 const insertUser = (userData) => {
   return new Promise((resolve, reject) => {
     const insertUserQuery =
-      'INSERT INTO users (fullName, username, password, profilePhoto, email, street, city, state, zipCode verificationToken, registerForPromotion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'; // Modify the query to include registerForPromotion
+      'INSERT INTO users (fullName, username, password, profilePhoto, email, street, phoneNumber, city, state, zipCode verificationToken, registerForPromotion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?, ?)'; // Modify the query to include registerForPromotion
 
     db.query(
       insertUserQuery,
