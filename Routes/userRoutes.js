@@ -21,4 +21,6 @@ router.post('/reset-password', authController.updatePassword);
 router.post('/signup', upload.none(), authController.signUp);
 router.post('/signin', upload.none(), authController.signIn);
 
+
+router.delete('/payment-info/:id', authController.deletePaymentInfoById);
 module.exports = router;

@@ -216,10 +216,11 @@ const logout = (req, res) => {
   
   const updatePaymentInfo = async (req, res) => {
     const { userId } = req.params;
-    const { cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode } = req.body;
+    const { cardType, cardNumber, cardPIN, expirationDate, billingAddress, city, state, zipCode } = req.body;
     
     try {
-      
+      const cardNumberHash = await bcrypt.hash(cardNumber, 10);
+      const cardPINHash = await bcrypt.hash(cardPIN, 10);
       const result = await userModel.updatePayment(userId, cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode);
       res.status(200).json({ message: 'Payment information updated successfully', data: result });
     } catch (error) {
@@ -227,6 +228,16 @@ const logout = (req, res) => {
     }
   };
   
+  const deletePaymentInfoById = async (req, res) => {
+    try {
+      const paymentInfoId = req.params.id;
+      await userModel.DeletepaymentInfoId(paymentInfoId);
+      res.status(200).json({ success: true, message: 'Payment information deleted successfully' });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  };
+
   const updateUserDetails = async (req, res) => {
     const { userID } = req.params;
     const userData = req.body;
@@ -341,5 +352,6 @@ module.exports = {
   verifyEmail,
   getUserByEmailController,
   updatePassword,
-  getPaymentInfoByUser
+  getPaymentInfoByUser,
+  deletePaymentInfoById
 };

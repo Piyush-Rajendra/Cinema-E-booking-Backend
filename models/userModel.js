@@ -168,6 +168,18 @@ const getUserByID = async (userID) => {
   });
 };
 
+  const DeletepaymentInfoId = async(id) => {
+    return new Promise((resolve, reject) => {
+      db.query('DELETE FROM payment_info WHERE id = ?', [id], (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+
 
 const addPayment = (userId, cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode) => {
   return new Promise((resolve, reject) => {
@@ -336,5 +348,6 @@ module.exports = {
   findUserByVerificationToken,
   createTables,
   updatePassword,
-  getPaymentByUserID
+  getPaymentByUserID,
+  DeletepaymentInfoId
 };
