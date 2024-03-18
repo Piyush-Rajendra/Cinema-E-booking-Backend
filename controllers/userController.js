@@ -246,6 +246,7 @@ const logout = (req, res) => {
         if (userData.hashedPassword) {
             userData.hashedPassword = await bcrypt.hash(userData.hashedPassword, 10);
         }
+        delete userData.hashedPassword;
         const transporter = nodemailer.createTransport({
             service: 'Gmail',
             host: 'smtp.gmail.com',
