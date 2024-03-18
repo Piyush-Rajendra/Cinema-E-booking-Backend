@@ -126,7 +126,7 @@ const signIn = async (req, res) => {
       return res.status(401).json({ error: 'Incorrect password' });
     }
     const token = jwt.sign({ userId: user.id }, 'your-secret-key', { expiresIn: '1h' });
-    res.json({ message: 'Login successful', token });
+    res.json({ message: 'Login successful', token, user: { id: user.id, username: user.username }  });
     console.log(token)
   } catch (error) {
     console.error(error);
