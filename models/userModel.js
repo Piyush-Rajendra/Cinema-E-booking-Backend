@@ -19,7 +19,7 @@ const createUsersTable = () => {
         state VARCHAR(255),
         zipCode VARCHAR(255),
         status ENUM('active', 'inactive') NOT NULL DEFAULT 'inactive',
-        verificationToken VARCHAR(255) NULL
+        verificationToken VARCHAR(255) NULL,
         registerForPromotion BOOLEAN
       )
     `, (err) => {
