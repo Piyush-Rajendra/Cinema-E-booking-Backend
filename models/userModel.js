@@ -20,6 +20,7 @@ const createUsersTable = () => {
         zipCode VARCHAR(255),
         status ENUM('active', 'inactive') NOT NULL DEFAULT 'inactive',
         verificationToken VARCHAR(255) NULL
+        registerForPromotion BOOLEAN
       )
     `, (err) => {
       if (err) {
@@ -224,17 +225,19 @@ const checkUsernameExists = (username) => {
 const updateUser = (userID, userData) => {
   return new Promise((resolve, reject) => {
     const updateUserQuery =
-      'UPDATE users SET fullName = ?, username = ?, password = ?, profilePhoto = ?, homeAddress = ?, city = ?, registerForPromotion = ?, phoneNumber = ? WHERE id = ?';
+      'UPDATE users SET fullName = ?, username = ?, password = ?, profilePhoto = ?, street = ?, city = ?, state = ?, zipCode = ?, registerForPromotion = ?, phoneNumber = ? WHERE id = ?';
 
     db.query(
       updateUserQuery,
       [
         userData.fullName,
         userData.username,
-        userData.hashedPassword,
+        userData.hashedPassword, // Assuming this is properly hashed
         userData.profilePhoto,
-        userData.homeAddress,
+        userData.street,
         userData.city,
+        userData.state,
+        userData.zipCode,
         userData.registerForPromotion,
         userData.phoneNumber,
         userID
@@ -249,6 +252,7 @@ const updateUser = (userID, userData) => {
     );
   });
 };
+
 
 
 const findUserByVerificationToken = (token) => {
