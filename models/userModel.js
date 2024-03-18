@@ -83,15 +83,15 @@ const insertUser = (userData) => {
       [
         userData.fullName,
         userData.username,
-        userData.hashedPassword, // Assuming this is properly hashed
+        userData.hashedPassword,
         userData.profilePhoto,
         userData.email,
         userData.street,
-        userData.phoneNumber, // Include phoneNumber here
+        userData.phoneNumber, 
         userData.city,
         userData.state,
         userData.zipCode,
-        userData.verificationToken, // Include verificationToken here
+        userData.verificationToken, 
         userData.registerForPromotion
       ],
       (err, results) => {

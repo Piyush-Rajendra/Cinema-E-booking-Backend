@@ -2,6 +2,7 @@
 
 const adminModel = require('../models/adminModel');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const registerAdmin = require('../models/adminModel').registerAdmin;
 
@@ -11,7 +12,8 @@ const createAdmin = async (req, res) => {
   try {
     // Call the registerAdmin function from the model
     await registerAdmin(username, password);
-    res.status(201).json({ message: 'Admin registered successfully' });
+   
+    res.status(201).json({ message: 'Admin registered successfully', });
   } catch (error) {
     console.error('Error registering admin:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -41,7 +43,8 @@ const adminSignIn = async (req, res) => {
       }
   
       // Successful login
-      res.json({ message: 'Admin login successful' });
+      const token = jwt.sign({ adminId: admin.id }, 'your-secret-key', { expiresIn: '1h' });
+      res.json({ message: 'Admin login successful',  token, user: { id: admin.id, username: admin.username } });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
