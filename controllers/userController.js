@@ -220,7 +220,7 @@ const logout = (req, res) => {
     
     try {
       
-      const result = await updatePaymentByUserId(userId, cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode);
+      const result = await userModel.updatePayment(userId, cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode);
       res.status(200).json({ message: 'Payment information updated successfully', data: result });
     } catch (error) {
       res.status(500).json({ error: error.message });
