@@ -8,7 +8,7 @@ const createUsersTable = () => {
   return new Promise((resolve, reject) => {
     db.query(`
       CREATE TABLE IF NOT EXISTS users (
-        id INT PRIMARY KEY AUTO_INCREMENT,
+        PaymentId INT PRIMARY KEY AUTO_INCREMENT,
         fullName VARCHAR(255) NOT NULL,
         username VARCHAR(255) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
@@ -77,7 +77,7 @@ const createTables = async () => {
 const insertUser = (userData) => {
   return new Promise((resolve, reject) => {
     const insertUserQuery =
-      'INSERT INTO users (fullName, username, password, profilePhoto, email, street, phoneNumber, city, state, zipCode, registerForPromotion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+      'INSERT INTO users (fullName, username, password, profilePhoto, email, street, phoneNumber, city, state, zipCode,verificationToken, registerForPromotion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
     db.query(
       insertUserQuery,
@@ -170,7 +170,7 @@ const getUserByID = async (userID) => {
 
   const DeletepaymentInfoId = async(id) => {
     return new Promise((resolve, reject) => {
-      db.query('DELETE FROM payment_info WHERE id = ?', [id], (err, result) => {
+      db.query('DELETE FROM payment_info WHERE paymentId = ?', [id], (err, result) => {
         if (err) {
           reject(err);
         } else {
@@ -331,6 +331,17 @@ const getPaymentByUserID = async (userID) => {
   });
 };
 
+const getPaymentByID = async (ID) => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM payment_info WHERE id = ?', [ID], (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+};
 
 module.exports = {
   createUsersTable,
@@ -349,5 +360,6 @@ module.exports = {
   createTables,
   updatePassword,
   getPaymentByUserID,
-  DeletepaymentInfoId
+  DeletepaymentInfoId,
+  getPaymentByID
 };

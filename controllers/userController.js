@@ -21,7 +21,7 @@ const signUp = async (req, res) => {
       state,
       zipCode,
       registerForPromotion ,
-      phoneNumber,
+      phoneNumber
     } = req.body;
 
     const usernameExists = await userModel.checkUsernameExists(username);
@@ -337,6 +337,17 @@ const logout = (req, res) => {
       }
     };
 
+    const getPaymentInfoById = async (req, res) => {
+      try {
+        const userID = req.params.id;
+        const paymentInfo = await userModel.getPaymentByUserID(userID);
+        res.status(200).json({ paymentInfo });
+      } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+      }
+    };
+
+
 
 
 module.exports = {
@@ -353,5 +364,6 @@ module.exports = {
   getUserByEmailController,
   updatePassword,
   getPaymentInfoByUser,
-  deletePaymentInfoById
+  deletePaymentInfoById,
+  getPaymentInfoById
 };
