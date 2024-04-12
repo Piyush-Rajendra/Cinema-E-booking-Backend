@@ -59,6 +59,28 @@ const createPaymentInfoTable = () => {
   });
 };
 
+const billingAddress = () => {
+  return new Promise((resolve, reject) => {
+    db.query(`
+      CREATE TABLE IF NOT EXISTS billingAddress (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        billingAddress VARCHAR(255) NOT NULL,
+        city VARCHAR(255) NOT NULL,
+        state VARCHAR(255) NOT NULL,
+        zipCode VARCHAR(20) NOT NULL,
+        userId INT NOT NULL,
+        FOREIGN KEY (userId) REFERENCES users(id),
+        FOREIGN KEY (paymentId) REFERENCES paymentInfoTable(id)
+      )
+    `, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+};
 
 
 
@@ -181,9 +203,9 @@ const getUserByID = async (userID) => {
   }
 
 
-const addPayment = (userId, cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode) => {
+const addPayment = (userId, cardType, cardNumberHash, cardPINHash, expirationDate,) => {
   return new Promise((resolve, reject) => {
-    db.query('INSERT INTO payment_info (cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode, userId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode, userId], (err, result) => {
+    db.query('INSERT INTO payment_info (cardType, cardNumberHash, cardPINHash, expirationDate, userId) VALUES (?, ?, ?, ?)', [cardType, cardNumberHash, cardPINHash, expirationDate], (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -193,9 +215,9 @@ const addPayment = (userId, cardType, cardNumberHash, cardPINHash, expirationDat
   });
 };
 
-const addPayment2 = (userId, cardType, cardNumberHash, cardPINHash, expirationDate) => {
+const addbillingAddress = (userId, billingAddress, city, state, zipCode, payment_info_id) => {
   return new Promise((resolve, reject) => {
-    db.query('INSERT INTO payment_info (cardType, cardNumberHash, cardPINHash, expirationDate, userId) VALUES (?, ?, ?, ?, ?)', [cardType, cardNumberHash, cardPINHash, expirationDate,userId], (err, result) => {
+    db.query('INSERT INTO billingaddress ( billingAddress, city, state, zipCode, userId,payment_info_id) VALUES (?, ?, ?, ?, ?, ?)', [billingAddress, city, state, zipCode,userId, payment_info_id], (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -373,5 +395,5 @@ module.exports = {
   getPaymentByUserID,
   DeletepaymentInfoId,
   getPaymentByID,
-  addPayment2
+  addbillingAddress
 };

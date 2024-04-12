@@ -20,7 +20,7 @@ const signUp = async (req, res) => {
       city,
       state,
       zipCode,
-      registerForPromotion ,
+      registerForPromotion,
       phoneNumber
     } = req.body;
 
@@ -38,6 +38,10 @@ const signUp = async (req, res) => {
         error:
           'Password should be more than 8 characters and should have at least 1 special symbol and one uppercase letter',
       });
+    }
+
+    if (!isValidPhoneNumber(phoneNumber)) {
+      return res.status(400).json({ error: 'Invalid phone number format' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -58,7 +62,7 @@ const signUp = async (req, res) => {
       zipCode,
       status: 'inactive',
       verificationToken,
-      registerForPromotion ,
+      registerForPromotion,
       phoneNumber,
     });
 
@@ -88,6 +92,13 @@ const signUp = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+const isValidPhoneNumber = (phoneNumber) => {
+  
+  const phoneNumberRegex = /^\+?1?\d{10,15}$/;
+  return phoneNumberRegex.test(phoneNumber);
+};
+
 
 // Verification route
 const verifyEmail = async (req, res) => {
@@ -196,7 +207,7 @@ const logout = (req, res) => {
 
   const PaymentController = async (req, res) => {
     try {
-      const { cardType, cardNumber, cardPIN, expirationDate, billingAddress, city, state, zipCode } = req.body;
+      const { cardType, cardNumber, cardPIN, expirationDate} = req.body;
       const userId = req.params.userId;
       if (!cardType || !cardNumber || !cardPIN || !expirationDate || !billingAddress || !city || !state || !zipCode)
       {
@@ -215,15 +226,13 @@ const logout = (req, res) => {
   
   const PaymentController2 = async (req, res) => {
     try {
-      const { cardType, cardNumber, cardPIN, expirationDate} = req.body;
+      const {  billingAddress, city, state, zipCode } = req.body;
       const userId = req.params.userId;
-      if (!cardType || !cardNumber || !cardPIN || !expirationDate)
+      if (!billingAddress || !city || !state || !zipCode)
       {
         return res.status(400).json({ error: 'Missing required fields' });
       }
-      const cardNumberHash = await bcrypt.hash(cardNumber, 10);
-      const cardPINHash = await bcrypt.hash(cardPIN, 10);
-      await userModel.addPayment2(userId, cardType, cardNumberHash, cardPINHash, expirationDate);
+      await userModel.addbillingAddress(userId, billingAddress, city, state, zipCode);
       res.status(201).json({ message: 'Payment information created successfully' });
     } catch (error) {
       console.error('Error creating payment information:', error);
