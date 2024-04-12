@@ -32,6 +32,11 @@ const signUp = async (req, res) => {
     if (!validator.isEmail(email)) {
       return res.status(400).json({ error: 'Invalid email format' });
     }
+      // Check if the email already exists
+      const emailExists = await userModel.checkEmailExists(email);
+      if (emailExists) {
+        return res.status(400).json({ error: 'Email already exists' });
+      }
 
     if (!isValidPassword(password)) {
       return res.status(400).json({
@@ -89,7 +94,7 @@ const signUp = async (req, res) => {
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -204,24 +209,51 @@ const isValidPassword = (password) => {
 const logout = (req, res) => {
   res.json({ message: 'Logout successful' });
 }
+const PaymentController = async (req, res) => {
+  try {
+    const { cardType, cardNumber, cardPIN, expirationDate, billingAddress, city, state, zipCode } = req.body;
+    const userId = req.params.userId;
 
-  const PaymentController = async (req, res) => {
-    try {
-      const { cardType, cardNumber, cardPIN, expirationDate} = req.body;
-      const userId = req.params.userId;
-      if (!cardType || !cardNumber || !cardPIN || !expirationDate || !billingAddress || !city || !state || !zipCode)
-      {
-        return res.status(400).json({ error: 'Missing required fields' });
-      }
-      const cardNumberHash = await bcrypt.hash(cardNumber, 10);
-      const cardPINHash = await bcrypt.hash(cardPIN, 10);
-      await userModel.addPayment(userId, cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode);
-      res.status(201).json({ message: 'Payment information created successfully' });
-    } catch (error) {
-      console.error('Error creating payment information:', error);
-      res.status(500).json({ error: 'Internal server error' });
+    // Check for missing required fields
+    if (!cardType || !cardNumber || !cardPIN || !expirationDate || !billingAddress || !city || !state || !zipCode) {
+      return res.status(400).json({ error: 'Missing required fields' });
     }
-  };
+
+    // Validate card number length
+    if (cardNumber.length !== 16 || !isNumeric(cardNumber)) {
+      return res.status(400).json({ error: 'Invalid credit card number' });
+    }
+
+    // Validate PIN length
+    if (cardPIN.length !== 3 || !isNumeric(cardPIN)) {
+      return res.status(400).json({ error: 'Invalid PIN' });
+    }
+
+    // Validate expiration date
+    const currentDate = new Date();
+    const inputExpirationDate = new Date(expirationDate);
+    if (inputExpirationDate <= currentDate) {
+      return res.status(400).json({ error: 'Expiration date must be in the future' });
+    }
+
+    // Hash card number and PIN
+    const cardNumberHash = await bcrypt.hash(cardNumber, 10);
+    const cardPINHash = await bcrypt.hash(cardPIN, 10);
+
+    // Add payment information
+    await userModel.addPayment(userId, cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode);
+
+    res.status(201).json({ message: 'Payment information created successfully' });
+  } catch (error) {
+    console.error('Error creating payment information:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Helper function to check if a string is numeric
+const isNumeric = (str) => {
+  return /^\d+$/.test(str);
+};
 
   
   const PaymentController2 = async (req, res) => {

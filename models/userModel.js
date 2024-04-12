@@ -269,6 +269,29 @@ const checkUsernameExists = (username) => {
   });
 };
 
+const checkEmailExists = async (email) => {
+  try {
+    const results = await new Promise((resolve, reject) => {
+      db.query(
+        'SELECT * FROM users WHERE email = ?',
+        [email],
+        (err, results) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(results);
+          }
+        }
+      );
+    });
+    
+    return results.length > 0;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
 const updateUser = (userID, userData) => {
   return new Promise((resolve, reject) => {
       const updateUserQuery =
@@ -395,5 +418,6 @@ module.exports = {
   getPaymentByUserID,
   DeletepaymentInfoId,
   getPaymentByID,
+  checkEmailExists,
   addbillingAddress
 };
