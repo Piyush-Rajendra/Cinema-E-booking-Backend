@@ -70,9 +70,8 @@ const billingAddress = () => {
         zipCode VARCHAR(20) NOT NULL,
         userId INT NOT NULL,
         FOREIGN KEY (userId) REFERENCES users(id),
-        FOREIGN KEY (paymentId) REFERENCES paymentInfoTable(id)
       )
-    `, (err) => {
+    `, (err) => { 
       if (err) {
         reject(err);
       } else {
@@ -419,7 +418,111 @@ const createTableQuery = `
     console.log('Table created or already exists');
   });
 
+  const createPromotion = ({ name, promoCode, description, percentoffPromo, valueoffPromo, percentoff, valueoff }, callback) => {
+    const insertQuery = `
+      INSERT INTO promotions (name, promoCode, description, percentoffPromo, valueoffPromo, percentoff, valueoff) 
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+    db.query(insertQuery, [name, promoCode, description, percentoffPromo, valueoffPromo, percentoff, valueoff], (err, result) => {
+      if (err) {
+        return callback(err);
+      }
+      callback(null, result.insertId);
+    });
+  };
+  
+  const deletePromotionById = (promotionId, callback) => {
+    const deleteQuery = `
+      DELETE FROM promotions 
+      WHERE id = ?
+    `;
+    db.query(deleteQuery, [promotionId], (err, result) => {
+      if (err) {
+        return callback(err);
+      }
+      callback(null, result.affectedRows);
+    });
+  };
+  
+  const updatePromotionById = (promotionId, { name, promoCode, description, percentoffPromo, valueoffPromo, percentoff, valueoff }, callback) => {
+    const updateQuery = `
+      UPDATE promotions 
+      SET name = ?, promoCode = ?, description = ?, percentoffPromo = ?, valueoffPromo = ?, percentoff = ?, valueoff = ?
+      WHERE id = ?
+    `;
+    db.query(updateQuery, [name, promoCode, description, percentoffPromo, valueoffPromo, percentoff, valueoff, promotionId], (err, result) => {
+      if (err) {
+        return callback(err);
+      }
+      callback(null, result.affectedRows);
+    });
+  };
+  
+  const getAllPromotions = (callback) => {
+    const selectQuery = `
+      SELECT * FROM promotions
+    `;
+    db.query(selectQuery, (err, result) => {
+      if (err) {
+        return callback(err);
+      }
+      callback(null, result);
+    });
+  };
+  
+  const getPromotionByPromoCode = (promoCode, callback) => {
+    const selectQuery = `
+      SELECT * FROM promotions 
+      WHERE promoCode = ?
+    `;
+    db.query(selectQuery, [promoCode], (err, result) => {
+      if (err) {
+        return callback(err);
+      }
+      if (result.length === 0) {
+        return callback(null, null);
+      }
+      callback(null, result[0]);
+    });
+  };
 
+  const createBillingAddress = async (billingAddressData) => {
+    try {
+      const { billingAddress, city, state, zipCode, userId } = billingAddressData;
+      const result = await db.query('INSERT INTO billingAddress (billingAddress, city, state, zipCode, userId) VALUES (?, ?, ?, ?, ?)', 
+                                    [billingAddress, city, state, zipCode, userId]);
+      return result.insertId;
+    } catch (error) {
+      throw error;
+    }
+  };
+  
+  const updateBillingAddress = async (billingAddressId, newData) => {
+    try {
+      const { billingAddress, city, state, zipCode, userId } = newData;
+      await db.query('UPDATE billingAddress SET billingAddress = ?, city = ?, state = ?, zipCode = ? WHERE id = ?', 
+                     [billingAddress, city, state, zipCode, userId, billingAddressId]);
+    } catch (error) {
+      throw error;
+    }
+  };
+  
+  const deleteBillingAddress = async (billingAddressId) => {
+    try {
+      await db.query('DELETE FROM billingAddress WHERE id = ?', billingAddressId);
+    } catch (error) {
+      throw error;
+    }
+  };
+  
+  const getBillingAddressByUserId = async (userId) => {
+    try {
+      const rows = await db.query('SELECT * FROM billingAddress WHERE userId = ?', userId);
+      return rows;
+    } catch (error) {
+      throw error;
+    }
+  };
 
 module.exports = {
   createUsersTable,
@@ -442,5 +545,14 @@ module.exports = {
   getPaymentByID,
   checkEmailExists,
   addbillingAddress,
-  billingAddress
+  billingAddress,
+  createPromotion,
+  deletePromotionById,
+  updatePromotionById,
+  getAllPromotions,
+  getPromotionByPromoCode,
+  createBillingAddress,
+  updateBillingAddress,
+  deleteBillingAddress,
+  getBillingAddressByUserId,
 };

@@ -409,6 +409,113 @@ const isNumeric = (str) => {
 
 
 
+    const createPromotion = (req, res) => {
+      const { name, promoCode, description, percentoffPromo, valueoffPromo, percentoff, valueoff } = req.body;
+      userModel.createPromotion({ name, promoCode, description, percentoffPromo, valueoffPromo, percentoff, valueoff }, (err, id) => {
+        if (err) {
+          return res.status(500).json({ error: 'Internal Server Error' });
+        }
+        res.status(201).json({ id });
+      });
+    };
+    
+   const deletePromotion = (req, res) => {
+      const promotionId = req.params.id;
+      userModel.deletePromotionById(promotionId, (err, affectedRows) => {
+        if (err) {
+          return res.status(500).json({ error: 'Internal Server Error' });
+        }
+        if (affectedRows === 0) {
+          return res.status(404).json({ error: 'Promotion not found' });
+        }
+        res.status(200).json({ message: 'Promotion deleted successfully' });
+      });
+    };
+    
+    const updatePromotion = (req, res) => {
+      const promotionId = req.params.id;
+      const { name, promoCode, description, percentoffPromo, valueoffPromo, percentoff, valueoff } = req.body;
+      userModel.updatePromotionById(promotionId, { name, promoCode, description, percentoffPromo, valueoffPromo, percentoff, valueoff }, (err, affectedRows) => {
+        if (err) {
+          return res.status(500).json({ error: 'Internal Server Error' });
+        }
+        if (affectedRows === 0) {
+          return res.status(404).json({ error: 'Promotion not found' });
+        }
+        res.status(200).json({ message: 'Promotion updated successfully' });
+      });
+    };
+    
+    const getAllPromotions = (req, res) => {
+      userModel.getAllPromotions((err, promotions) => {
+        if (err) {
+          return res.status(500).json({ error: 'Internal Server Error' });
+        }
+        res.status(200).json(promotions);
+      });
+    };
+    
+   const getPromotionByPromoCode = (req, res) => {
+      const promoCode = req.params.promoCode;
+      userModel.getPromotionByPromoCode(promoCode, (err, promotion) => {
+        if (err) {
+          return res.status(500).json({ error: 'Internal Server Error' });
+        }
+        if (!promotion) {
+          return res.status(404).json({ error: 'Promotion not found' });
+        }
+        res.status(200).json(promotion);
+      });
+    };
+
+    const createBillingAddress = async (req, res, next) => {
+      try {
+        const { userId } = req.params;
+        const billingAddressData = req.body;
+        billingAddressData.userId = userId;
+        const newBillingAddressId = await userModel.createBillingAddress(billingAddressData);
+        res.status(201).json({ id: newBillingAddressId });
+      } catch (error) {
+        next(error);
+      }
+    };
+    
+    const updateBillingAddress = async (req, res, next) => {
+      try {
+        const { userId } = req.params;
+        const { id } = req.body; // Assuming the ID of the billing address is provided in the request body
+        const billingAddressData = req.body;
+        billingAddressData.userId = userId;
+        await userModel.updateBillingAddress(id, billingAddressData);
+        res.sendStatus(200);
+      } catch (error) {
+        next(error);
+      }
+    };
+    
+    
+
+const deleteBillingAddress = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await userModel.deleteBillingAddress(id);
+    res.sendStatus(204);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getBillingAddressByUserId = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const billingAddresses = await userModel.getBillingAddressByUserId(userId);
+    res.json(billingAddresses);
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 
 module.exports = {
   signUp,
@@ -427,4 +534,13 @@ module.exports = {
   deletePaymentInfoById,
   getPaymentInfoById,
   PaymentController2,
+  updatePromotion,
+  createPromotion,
+  deletePromotion,
+  getAllPromotions,
+  getPromotionByPromoCode,
+  createBillingAddress,
+  updateBillingAddress,
+  deleteBillingAddress,
+  getBillingAddressByUserId,
 };
