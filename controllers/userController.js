@@ -20,7 +20,7 @@ const signUp = async (req, res) => {
       city,
       state,
       zipCode,
-      registerForPromotion,
+      subscribeToPromotion,
       phoneNumber
     } = req.body;
 
@@ -67,7 +67,7 @@ const signUp = async (req, res) => {
       zipCode,
       status: 'inactive',
       verificationToken,
-      registerForPromotion,
+      subscribeToPromotion: 'yes',
       phoneNumber,
     });
 

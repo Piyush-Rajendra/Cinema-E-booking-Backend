@@ -15,6 +15,7 @@ const createMoviesTable = () => {
       trailerVideo TEXT,
       mpaaRating VARCHAR(10),
       releaseDate Date,
+      showDatesTimes Text,
       posterBase64 TEXT 
     )
   `,
@@ -97,7 +98,7 @@ const createReviewsTable = () => {
 
 const insertMovie = (movieData) => {
   return db.query(
-    'INSERT INTO movies (title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, posterBase64) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)',
+    'INSERT INTO movies (title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)',
     [
       movieData.title,
       movieData.category,
@@ -109,7 +110,9 @@ const insertMovie = (movieData) => {
       movieData.trailerVideo,
       movieData.mpaaRating,
       movieData.releaseDate,
+      movieData.showDatesTimes,
       movieData.posterBase64,
+
     ]
   );
 };

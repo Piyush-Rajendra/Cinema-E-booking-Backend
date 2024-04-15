@@ -17,10 +17,10 @@ const createUsersTable = () => {
         street VARCHAR(255),
         city VARCHAR(255),
         state VARCHAR(255),
-        zipCode VARCHAR(255),
+        zipCode VARCHAR(20) NOT NULL,
         status ENUM('active', 'inactive') NOT NULL DEFAULT 'inactive',
-        verificationToken VARCHAR(255) NULL,
-        registerForPromotion BOOLEAN
+        subscribeToPromotion ENUM('yes', 'no') NOT NULL DEFAULT 'yes',
+        verificationToken VARCHAR(255) NULL
       )
     `, (err) => {
       if (err) {
@@ -98,7 +98,7 @@ const createTables = async () => {
 const insertUser = (userData) => {
   return new Promise((resolve, reject) => {
     const insertUserQuery =
-      'INSERT INTO users (fullName, username, password, profilePhoto, email, street, phoneNumber, city, state, zipCode, verificationToken, registerForPromotion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+      'INSERT INTO users (fullName, username, password, profilePhoto, email, street, phoneNumber, city, state, zipCode, subscribeToPromotion, verificationToken) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
     db.query(
       insertUserQuery,
@@ -113,8 +113,8 @@ const insertUser = (userData) => {
         userData.city,
         userData.state,
         userData.zipCode,
+        userData.subscribeToPromotion,
         userData.verificationToken, 
-        userData.registerForPromotion
       ],
       (err, results) => {
         if (err) {
