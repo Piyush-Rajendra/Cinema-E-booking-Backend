@@ -14,7 +14,7 @@ const createMoviesTable = () => {
       trailerPicture TEXT,
       trailerVideo TEXT,
       mpaaRating VARCHAR(10),
-      showDatesTimes TEXT,
+      releaseDate Date,
       posterBase64 TEXT 
     )
   `,
@@ -26,6 +26,50 @@ const createMoviesTable = () => {
     }
   });
 });
+};
+
+// Function to insert a new category into the database
+const insertCategory = async (categoryData) => {
+  const { name } = categoryData;
+  return new Promise((resolve, reject) => {
+    db.query('INSERT INTO categories (name) VALUES (?)', [name], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
+// Function to fetch all categories from the database
+const getAllCategories = () => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM categories', (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+};
+
+const createCategoriesTable = () => {
+  return new Promise((resolve, reject) => {
+    db.query(`
+      CREATE TABLE IF NOT EXISTS categories (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(255) NOT NULL UNIQUE
+      )
+    `, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
 };
 
 
@@ -53,7 +97,7 @@ const createReviewsTable = () => {
 
 const insertMovie = (movieData) => {
   return db.query(
-    'INSERT INTO movies (title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, showDatesTimes, posterBase64) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)',
+    'INSERT INTO movies (title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, posterBase64) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)',
     [
       movieData.title,
       movieData.category,
@@ -64,7 +108,7 @@ const insertMovie = (movieData) => {
       movieData.trailerPicture,
       movieData.trailerVideo,
       movieData.mpaaRating,
-      movieData.showDatesTimes,
+      movieData.releaseDate,
       movieData.posterBase64,
     ]
   );
@@ -109,6 +153,21 @@ const getMovieByName = (movieTitle) => {
   });
 };
 
+const getMoviesByCategory = (category) => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM movies WHERE category = ?', [category], (err, results) => {
+      if (err) {
+        console.error('Error executing query:', err);
+        reject(err);
+      } else {
+        console.log('Query results:', results);
+        resolve(results);
+      }
+    });
+  });
+};
+
+
 const insertReview = (reviewData) => {
   return new Promise((resolve, reject) => {
     db.query(
@@ -143,11 +202,11 @@ const createTables = async () => {
   try {
     await createMoviesTable();
     await createReviewsTable();
+    await createCategoriesTable();
   } catch (err) {
     throw err;
   }
 };
-
 
 
 
@@ -161,6 +220,10 @@ module.exports = {
   getReviewsForMovie,
   getMovieById,
   getMovieByName,
-  createTables
+  createTables,
+  createCategoriesTable,
+  insertCategory,
+  getAllCategories,
+  getMoviesByCategory
 };
 
