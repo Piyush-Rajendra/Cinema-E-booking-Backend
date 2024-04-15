@@ -13,4 +13,5 @@ router.post('/reviews', movieController.addReview);
 router.get('/reviews/:movieId', movieController.getReviewsForMovie);
 router.post('/movies/categories', movieController.createCategory);
 router.get('/movies/categories', movieController.getCategories);
+router.delete('/movies/:id', movieController.deleteMovie);
 module.exports = router;

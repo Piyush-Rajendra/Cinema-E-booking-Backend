@@ -114,6 +114,19 @@ const insertMovie = (movieData) => {
   );
 };
 
+const deleteMovieById = (movieId) => {
+  return new Promise((resolve, reject) => {
+    db.query('DELETE FROM movies WHERE id = ?', [movieId], (err, result) => {
+      if (err) {
+        console.error('Error deleting movie:', err);
+        reject(err);
+      } else {
+        console.log('Movie deleted successfully:', result);
+        resolve(result);
+      }
+    });
+  });
+};
 
 const getAllMovies = () => {
   return new Promise((resolve, reject) => {
@@ -224,6 +237,7 @@ module.exports = {
   createCategoriesTable,
   insertCategory,
   getAllCategories,
-  getMoviesByCategory
+  getMoviesByCategory,
+  deleteMovieById
 };
 

@@ -194,3 +194,15 @@ exports.getMoviesByCategory = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+
+exports.deleteMovie = async (req, res) => {
+  try {
+    const movieId = req.params.id;
+    await movieModel.deleteMovieById(movieId);
+    res.json({ message: 'Movie deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
