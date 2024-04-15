@@ -49,6 +49,47 @@ exports.getMovies = async (req, res) => {
     }
   };
 
+   exports.updateMovieController = async (req, res) => {
+    const movieId = req.params.id; // Assuming the movie ID is passed as a route parameter
+    const {
+      title,
+      category,
+      cast,
+      director,
+      producer,
+      synopsis,
+      trailerPicture,
+      trailerVideo,
+      mpaaRating,
+      releaseDate,
+      showDatesTimes,
+      posterBase64
+    } = req.body;
+  
+    try {
+      await movieModel.updateMovie(
+        movieId,
+        title,
+        category,
+        cast,
+        director,
+        producer,
+        synopsis,
+        trailerPicture,
+        trailerVideo,
+        mpaaRating,
+        releaseDate,
+        showDatesTimes,
+        posterBase64
+      );
+  
+      res.status(200).json({ message: 'Movie updated successfully' });
+    } catch (error) {
+      console.error('Error updating movie:', error);
+      res.status(500).json({ error: 'Failed to update movie' });
+    }
+  };
+  
   exports.createCategory = async (req, res) => {
     try {
       const { name } = req.body;

@@ -29,6 +29,21 @@ const createMoviesTable = () => {
 });
 };
 
+const updateMovie = (movieId, title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64) => {
+  return new Promise((resolve, reject) => {
+    db.query('UPDATE movies SET title = ?, category = ?, cast = ?, director = ?, producer = ?, synopsis = ?, trailerPicture = ?, trailerVideo = ?, mpaaRating = ?, releaseDate = ?, showDatesTimes = ?, posterBase64 = ? WHERE id = ?', 
+    [title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, movieId], 
+    (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
+
 // Function to insert a new category into the database
 const insertCategory = async (categoryData) => {
   const { name } = categoryData;
@@ -241,6 +256,7 @@ module.exports = {
   insertCategory,
   getAllCategories,
   getMoviesByCategory,
-  deleteMovieById
+  deleteMovieById,
+  updateMovie
 };
 
