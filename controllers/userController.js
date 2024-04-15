@@ -4,7 +4,8 @@ const validator = require('validator');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 require('dotenv').config()
-const crypto = require('crypto'); // For generating random tokens
+const crypto = require('crypto'); 
+const db = require('../db');
 
 const signUp = async (req, res) => {
   try {
@@ -425,5 +426,5 @@ module.exports = {
   getPaymentInfoByUser,
   deletePaymentInfoById,
   getPaymentInfoById,
-  PaymentController2
+  PaymentController2,
 };

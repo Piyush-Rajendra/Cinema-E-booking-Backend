@@ -25,6 +25,7 @@ exports.getMovies = async (req, res) => {
         trailerVideo,
         mpaaRating,
         releaseDate,
+        showDatesTimes,
         posterBase64  
       } = req.body;
 
@@ -39,6 +40,7 @@ exports.getMovies = async (req, res) => {
         trailerVideo,
         mpaaRating,
         releaseDate,
+        showDatesTimes,
         posterBase64  
       });
 

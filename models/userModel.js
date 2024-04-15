@@ -399,6 +399,28 @@ const getPaymentByID = async (ID) => {
   });
 };
 
+const createTableQuery = `
+    CREATE TABLE IF NOT EXISTS promotions (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      promoCode VARCHAR(255) NOT NULL,
+      description TEXT,
+      percentoffPromo BOOLEAN,
+      valueoffPromo BOOLEAN,
+      percentoff FLOAT DEFAULT 0,
+      valueoff FLOAT DEFAULT 0
+    )
+  `;
+  
+  db.query(createTableQuery, (err, result) => {
+    if (err) {
+      throw err;
+    }
+    console.log('Table created or already exists');
+  });
+
+
+
 module.exports = {
   createUsersTable,
   getUserByUsername,
@@ -419,5 +441,6 @@ module.exports = {
   DeletepaymentInfoId,
   getPaymentByID,
   checkEmailExists,
-  addbillingAddress
+  addbillingAddress,
+  billingAddress
 };
