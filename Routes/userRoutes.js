@@ -15,7 +15,7 @@ router.get('/verify-email/:token', authController.verifyEmail);
 router.get('/users/:email', authController.getUserByEmailController);
 router.post('/forgot-password', authController.requestReset);
 router.post('/logout', authController.logout);
-router.post('/users/:userId/payment', authController.PaymentController);
+router.post('/user/:userId/payment', authController.PaymentController);
 router.post('/users/:userId/onlypayment', authController.PaymentController2);
 router.put('/payment/:userId', authController.updatePaymentInfo);
 router.put('/users/:userID', authController.updateUserDetails);

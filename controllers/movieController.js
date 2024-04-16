@@ -25,6 +25,7 @@ exports.getMovies = async (req, res) => {
         trailerVideo,
         mpaaRating,
         releaseDate,
+        MovieStatus,
         showDatesTimes,
         posterBase64  
       } = req.body;
@@ -40,6 +41,7 @@ exports.getMovies = async (req, res) => {
         trailerVideo,
         mpaaRating,
         releaseDate,
+        MovieStatus,
         showDatesTimes,
         posterBase64  
       });
@@ -65,6 +67,7 @@ exports.getMovies = async (req, res) => {
       mpaaRating,
       releaseDate,
       showDatesTimes,
+      MovieStatus,
       posterBase64
     } = req.body;
   
@@ -82,6 +85,7 @@ exports.getMovies = async (req, res) => {
         mpaaRating,
         releaseDate,
         showDatesTimes,
+        MovieStatus,
         posterBase64
       );
   
@@ -299,5 +303,28 @@ exports.getTicketPriceByType = async (req, res) => {
       return res.status(404).json({ msg: 'Ticket Price not found' });
     }
     res.status(500).send('Server Error');
+  }
+};
+
+exports.updateMovieStatusController = async (req, res) => {
+  try {
+    await movieModel.updateMovieStatus();
+    res.json({ message: 'Movie statuses updated successfully' });
+  } catch (error) {
+    console.error('Error updating movie status:', error);
+    res.status(500).json({ error: 'An error occurred while updating movie status' });
+  }
+};
+
+exports.updateMovieStatusControllerById = async (req, res) => {
+  const {movieId} = req.params;
+  const { MovieStatus } = req.body;
+
+  try {
+    const result = await movieModel.updateMovieStatus(movieId, MovieStatus);
+    res.json(result);
+  } catch (error) {
+    console.error('Error updating movie status:', error);
+    res.status(500).json({ error: 'An error occurred while updating movie status' });
   }
 };

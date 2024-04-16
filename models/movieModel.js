@@ -282,17 +282,40 @@ const updateMovieStatus = () => {
   return new Promise((resolve, reject) => {
     try {
       const currentDate = new Date().toISOString().split('T')[0];
-      const query = `
-        UPDATE movies
-        SET status = 'Released'
-        WHERE release_date <= ? AND status = 'Coming Soon'
-      `;
-      db.query(query, [currentDate], (error, result) => {
+      db.query( `
+      UPDATE movies
+      SET MovieStatus = 'Released'
+      WHERE releaseDate <= ? AND MovieStatus = 'Coming Soon'
+    `, [currentDate], (error, result) => {
         if (error) {
           reject(error);
         } else {
           console.log(`Updated ${result.affectedRows} movies to 'Released'.`);
           resolve(result);
+        }
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const updateMovieStatusById = (movieId, MovieStatus) => {
+  return new Promise((resolve, reject) => {
+    try {
+      db.query( `
+      UPDATE movies
+      SET MovieStatus = ?
+      WHERE id = ? AND (MovieStatus = 'Coming Soon' OR MovieStatus = 'Released')
+    `, [MovieStatus, movieId], (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          if (result.affectedRows === 0) {
+            resolve({ message: 'No movies updated. Invalid movie ID or status.' });
+          } else {
+            resolve({ message: `Updated movie with ID ${movieId} to '${MovieStatus}'.` });
+          }
         }
       });
     } catch (error) {
@@ -327,10 +350,11 @@ module.exports = {
   getMoviesByCategory,
   deleteMovieById,
   updateMovie,
- getAllTicketPrices,
- updateTicketPrice,
-createTicketPrice,
-updateMovieStatus,
-getTicketPriceByType
+  getAllTicketPrices,
+  updateTicketPrice,
+  createTicketPrice,
+  updateMovieStatus,
+  getTicketPriceByType,
+  updateMovieStatusById
 };
 

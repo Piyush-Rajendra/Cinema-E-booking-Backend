@@ -19,4 +19,6 @@ router.get('/ticket-prices', movieController.getAllTicketPrices);
 router.post('/ticket-prices', movieController.createTicketPrice);
 router.put('/ticket-prices/:type', movieController.updateTicketPrice);
 router.get('/ticket-prices/:type', movieController.getTicketPriceByType);
+router.put('/update-status', movieController.updateMovieStatusController);
+router.put('/update-statusById/:id', movieController.updateMovieStatusControllerById);
 module.exports = router;

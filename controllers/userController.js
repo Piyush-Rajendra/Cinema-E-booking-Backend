@@ -252,11 +252,11 @@ const logout = (req, res) => {
 
 const PaymentController = async (req, res) => {
   try {
-    const { cardType, cardNumber, cardPIN, expirationDate, billingAddress, city, state, zipCode } = req.body;
+    const { cardType, cardNumber, cardPIN, expirationDate } = req.body;
     const userId = req.params.userId;
 
     // Check for missing required fields
-    if (!cardType || !cardNumber || !cardPIN || !expirationDate || !billingAddress || !city || !state || !zipCode) {
+    if (!cardType || !cardNumber || !cardPIN || !expirationDate) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -282,7 +282,7 @@ const PaymentController = async (req, res) => {
     const cardPINHash = await bcrypt.hash(cardPIN, 10);
 
     // Add payment information
-    await userModel.addPayment(userId, cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode);
+    await userModel.addPayment(userId, cardType, cardNumberHash, cardPINHash, expirationDate);
 
     res.status(201).json({ message: 'Payment information created successfully' });
   } catch (error) {
