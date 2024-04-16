@@ -32,18 +32,33 @@ const createUsersTable = () => {
     });
   });
 };
-
 const suspendUser = async (id) => {
   return new Promise((resolve, reject) => {
+    // First, fetch the current SuspendStatus of the user
     db.query(
-      `UPDATE users SET SuspendStatus = 'inactive' WHERE id = ?`,
+      `SELECT SuspendStatus FROM users WHERE id = ?`,
       [id],
-      (err, result) => {
+      (err, rows) => {
         if (err) {
           reject(err);
-        } else {
-          resolve(result);
+          return;
         }
+
+        // Toggle the SuspendStatus
+        const newStatus = rows[0].SuspendStatus === 'suspended' ? 'not_suspended' : 'suspended';
+
+        // Update the SuspendStatus
+        db.query(
+          `UPDATE users SET SuspendStatus = ? WHERE id = ?`,
+          [newStatus, id],
+          (err, result) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(result);
+            }
+          }
+        );
       }
     );
   });
@@ -212,28 +227,24 @@ const getUserByEmail = async (email) => {
   });
 };
 
-const getUserById = (userId, callback) => {
-
-
-  db.query(`SELECT * FROM users WHERE id = ?`, [userId], (err, result) => {
-    if (err) {
-      callback(err, null);
-      console.log(user)
-      return;
-    }
-
-    if (result.length === 0) {
-      callback('User not found222211', null);
-      return;
-    }
-
-    callback(null, result[0]);
+const getUserByIDs = async (userID) => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM users WHERE id = ?', [userID], (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        if (results.length === 0) {
+          reject(new Error('User not found'));
+        } else {
+          resolve(results[0]);
+        }
+      }
+    });
   });
 };
 
 
 const getUserByID = async (id) => {
-  id1 = id
   return new Promise((resolve, reject) => {
     db.query('SELECT * FROM users WHERE id = ?', [id], (err, results) => {
       if (err) {
@@ -244,6 +255,8 @@ const getUserByID = async (id) => {
     });
   });
 };
+
+
 
   const DeletepaymentInfoId = async(id) => {
     return new Promise((resolve, reject) => {
@@ -350,7 +363,7 @@ const checkEmailExists = async (email) => {
 const updateUser = (userID, userData) => {
   return new Promise((resolve, reject) => {
       const updateUserQuery =
-          'UPDATE users SET fullName = ?, username = ?, profilePhoto = ?, email=? street = ?, city = ?, state = ?, zipCode = ?, phoneNumber = ? WHERE id = ?';
+          'UPDATE users SET fullName = ?, username = ?,  profilePhoto = ?, street = ?, city = ?, state = ?, zipCode = ?, phoneNumber = ? WHERE id = ?';
 
       db.query(
           updateUserQuery,
@@ -363,7 +376,6 @@ const updateUser = (userID, userData) => {
               userData.state,
               userData.zipCode,
               userData.phoneNumber,
-              userData.email,
               userID
           ],
           (err, results) => {
@@ -627,5 +639,6 @@ module.exports = {
   deleteBillingAddress,
   getBillingAddressByUserId,
   suspendUser,
-  getUserByID
+  getUserByID,
+  getUserByIDs
 };

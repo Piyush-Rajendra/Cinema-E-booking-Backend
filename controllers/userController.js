@@ -144,11 +144,12 @@ const suspendUserController = async (req, res) => {
 
   try {
     await userModel.suspendUser(id);
-    res.status(200).json({ message: 'User suspended successfully.' });
+    res.status(200).json({ message: 'Suspension status toggled successfully.' });
   } catch (error) {
-    res.status(500).json({ error: 'Unable to suspend user.' });
+    res.status(500).json({ error: 'Unable to toggle suspension status.' });
   }
 };
+
 
 
 
@@ -163,14 +164,21 @@ const signIn = async (req, res) => {
     if (!passwordMatch) {
       return res.status(401).json({ error: 'Incorrect password' });
     }
+    
+    // Check if the user's account is suspended
+    if (user.SuspendStatus === 'suspended') {
+      return res.status(403).json({ error: 'Your account has been suspended. Please contact the administrator.' });
+    }
+    
     const token = jwt.sign({ userId: user.id }, 'your-secret-key', { expiresIn: '1h' });
-    res.json({ message: 'Login successful', token, user: { id: user.id, username: user.username }  });
-    console.log(token)
+    res.json({ message: 'Login successful', token, user: { id: user.id, username: user.username } });
+    console.log(token);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 
 
 
@@ -334,8 +342,11 @@ const isNumeric = (str) => {
     const { userID } = req.params;
     const userData = req.body;
     try {
-        const user = await userModel.getUserByID(userID);
+        const user = await userModel.getUserByIDs(userID);
         const email = user.email;
+        if (!email) {
+          return res.status(400).json({ error: 'User email is missing or invalid.' });
+      }
         delete userData.email;
         if (userData.hashedPassword) {
             userData.hashedPassword = await bcrypt.hash(userData.hashedPassword, 10);
@@ -364,6 +375,24 @@ const isNumeric = (str) => {
         res.status(500).json({ error: 'An error occurred while updating user information.' });
     }
 };
+
+const  updateUserDetailsnoEmail= async (req, res) => {
+  const { userID } = req.params;
+  const userData = req.body;
+  try {
+      const user = await userModel.getUserByIDs(userID);
+      if (userData.hashedPassword) {
+          userData.hashedPassword = await bcrypt.hash(userData.hashedPassword, 10);
+      }
+
+      const result = await userModel.updateUser(userID, userData);
+      res.status(200).json({ message: 'User information updated successfully', data: result });
+  } catch (error) {
+      console.error('Error:', error.message);
+      res.status(500).json({ error: 'An error occurred while updating user information.' });
+  }
+};
+
 
    const requestReset =  async(req, res) => {
       try {
@@ -582,5 +611,6 @@ module.exports = {
   getBillingAddressByUserId,
   deleteUserById,
   suspendUserController,
-  getUserById
+  getUserById,
+  updateUserDetailsnoEmail
 };

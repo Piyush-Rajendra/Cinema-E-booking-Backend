@@ -19,6 +19,7 @@ router.post('/users/:userId/payment', authController.PaymentController);
 router.post('/users/:userId/onlypayment', authController.PaymentController2);
 router.put('/payment/:userId', authController.updatePaymentInfo);
 router.put('/users/:userID', authController.updateUserDetails);
+router.put('/usersForAdmin/:userID', authController.updateUserDetails);
 router.post('/reset-password', authController.updatePassword);
 router.post('/signup', upload.none(), authController.signUp);
 router.post('/signin', upload.none(), authController.signIn);
