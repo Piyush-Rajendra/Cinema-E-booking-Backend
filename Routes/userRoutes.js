@@ -8,6 +8,7 @@ const router = express.Router();
 const upload = multer();
 
 router.get('/user/:username', authController.getUserByUsername);
+router.get('/users/:id', authController.getUserById);
 router.get('/users', authController.getAllUsers);
 router.get('/users/:id/payment-info', authController.getPaymentInfoByUser);
 router.get('/verify-email/:token', authController.verifyEmail);

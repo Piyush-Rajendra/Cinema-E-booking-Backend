@@ -194,6 +194,18 @@ const getUserByUsername = async (req, res) => {
   }
 };
 
+
+
+const getUserById = async (req, res) => {
+  try {
+    const userID = req.params.id;
+    const userInfo = await userModel.getUserByID(userID);
+    res.status(200).json({ userInfo });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 const getUserByEmailController = async (req, res) => {
   const { email } = req.params;
 
@@ -569,5 +581,6 @@ module.exports = {
   deleteBillingAddress,
   getBillingAddressByUserId,
   deleteUserById,
-  suspendUserController
+  suspendUserController,
+  getUserById
 };

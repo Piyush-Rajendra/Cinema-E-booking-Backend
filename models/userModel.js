@@ -8,7 +8,7 @@ const createUsersTable = () => {
   return new Promise((resolve, reject) => {
     db.query(`
       CREATE TABLE IF NOT EXISTS users (
-        PaymentId INT PRIMARY KEY AUTO_INCREMENT,
+        id INT PRIMARY KEY AUTO_INCREMENT,
         fullName VARCHAR(255) NOT NULL,
         username VARCHAR(255) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
@@ -20,7 +20,8 @@ const createUsersTable = () => {
         zipCode VARCHAR(20) NOT NULL,
         status ENUM('active', 'inactive') NOT NULL DEFAULT 'inactive',
         subscribeToPromotion ENUM('yes', 'no') NOT NULL DEFAULT 'yes',
-        verificationToken VARCHAR(255) NULL
+        verificationToken VARCHAR(255) NULL,
+        SuspendStatus ENUM('suspended', 'not_suspended') NOT NULL DEFAULT 'not_suspended'
       )
     `, (err) => {
       if (err) {
@@ -211,17 +212,33 @@ const getUserByEmail = async (email) => {
   });
 };
 
-const getUserByID = async (userID) => {
+const getUserById = (userId, callback) => {
+
+
+  db.query(`SELECT * FROM users WHERE id = ?`, [userId], (err, result) => {
+    if (err) {
+      callback(err, null);
+      console.log(user)
+      return;
+    }
+
+    if (result.length === 0) {
+      callback('User not found222211', null);
+      return;
+    }
+
+    callback(null, result[0]);
+  });
+};
+
+
+const getUserByID = async (id) => {
   return new Promise((resolve, reject) => {
-    db.query('SELECT * FROM users WHERE id = ?', [userID], (err, results) => {
+    db.query('SELECT * FROM users WHERE id = ?', [id], (err, results) => {
       if (err) {
         reject(err);
       } else {
-        if (results.length === 0) {
-          reject(new Error('User not found'));
-        } else {
-          resolve(results[0]);
-        }
+        resolve(results);
       }
     });
   });
@@ -588,7 +605,6 @@ module.exports = {
   deleteUserById,
   addPayment,
   updatePayment,
-  getUserByID,
   updateUser,
   updateUserStatus,
   findUserByVerificationToken,
@@ -610,4 +626,5 @@ module.exports = {
   deleteBillingAddress,
   getBillingAddressByUserId,
   suspendUser,
+  getUserByID
 };
