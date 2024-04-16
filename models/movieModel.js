@@ -16,6 +16,7 @@ const createMoviesTable = () => {
       mpaaRating VARCHAR(10),
       releaseDate Date,
       showDatesTimes Text,
+      MovieStatus VARCHAR(255),
       posterBase64 TEXT 
     )
   `,
@@ -29,10 +30,10 @@ const createMoviesTable = () => {
 });
 };
 
-const updateMovie = (movieId, title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64) => {
+const updateMovie = (movieId, title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus) => {
   return new Promise((resolve, reject) => {
-    db.query('UPDATE movies SET title = ?, category = ?, cast = ?, director = ?, producer = ?, synopsis = ?, trailerPicture = ?, trailerVideo = ?, mpaaRating = ?, releaseDate = ?, showDatesTimes = ?, posterBase64 = ? WHERE id = ?', 
-    [title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, movieId], 
+    db.query('UPDATE movies SET title = ?, category = ?, cast = ?, director = ?, producer = ?, synopsis = ?, trailerPicture = ?, trailerVideo = ?, mpaaRating = ?, releaseDate = ?, showDatesTimes = ?, posterBase64 = ?, MovieStatus = ? WHERE id = ?', 
+    [title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, movieId], 
     (err, result) => {
       if (err) {
         reject(err);
@@ -113,7 +114,7 @@ const createReviewsTable = () => {
 
 const insertMovie = (movieData) => {
   return db.query(
-    'INSERT INTO movies (title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)',
+    'INSERT INTO movies (title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?)',
     [
       movieData.title,
       movieData.category,
@@ -127,6 +128,7 @@ const insertMovie = (movieData) => {
       movieData.releaseDate,
       movieData.showDatesTimes,
       movieData.posterBase64,
+      movieData.MovieStatus
 
     ]
   );
@@ -228,22 +230,6 @@ const getReviewsForMovie = (movieId) => {
   });
 };
 
-
-const createTables = async () => {
-  try {
-    await createMoviesTable();
-    await createReviewsTable();
-    await createCategoriesTable();
-  } catch (err) {
-    throw err;
-  }
-};
-
-
-
-const TicketPrice = {};
-
-// Get all ticket prices
 const getAllTicketPrices = () => {
   return new Promise((resolve, reject) => {
     db.query('SELECT * FROM ticket_prices', (err, results) => {
@@ -255,7 +241,20 @@ const getAllTicketPrices = () => {
   });
 };
 
-// Create new ticket price
+const getTicketPriceByType = (type) => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM ticket_prices WHERE type = ?', [type], (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+      if (results.length === 0) {
+        return reject(new Error('Ticket Price not found'));
+      }
+      resolve(results[0]);
+    });
+  });
+};
+
 const createTicketPrice = (type, price) => {
   return new Promise((resolve, reject) => {
     db.query('INSERT INTO ticket_prices (type, price) VALUES (?, ?)', [type, price], (err, results) => {
@@ -267,7 +266,7 @@ const createTicketPrice = (type, price) => {
   });
 };
 
-// Update ticket price
+
 const updateTicketPrice = (type, price) => {
   return new Promise((resolve, reject) => {
     db.query('UPDATE ticket_prices SET price = ? WHERE type = ?', [price, type], (err, results) => {
@@ -279,6 +278,38 @@ const updateTicketPrice = (type, price) => {
   });
 };
 
+const updateMovieStatus = () => {
+  return new Promise((resolve, reject) => {
+    try {
+      const currentDate = new Date().toISOString().split('T')[0];
+      const query = `
+        UPDATE movies
+        SET status = 'Released'
+        WHERE release_date <= ? AND status = 'Coming Soon'
+      `;
+      db.query(query, [currentDate], (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          console.log(`Updated ${result.affectedRows} movies to 'Released'.`);
+          resolve(result);
+        }
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const createTables = async () => {
+  try {
+    await createMoviesTable();
+    await createReviewsTable();
+    await createCategoriesTable();
+  } catch (err) {
+    throw err;
+  }
+};
 
 module.exports = {
   createMoviesTable,
@@ -298,6 +329,8 @@ module.exports = {
   updateMovie,
  getAllTicketPrices,
  updateTicketPrice,
-createTicketPrice
+createTicketPrice,
+updateMovieStatus,
+getTicketPriceByType
 };
 

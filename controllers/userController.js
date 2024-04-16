@@ -164,8 +164,6 @@ const signIn = async (req, res) => {
     if (!passwordMatch) {
       return res.status(401).json({ error: 'Incorrect password' });
     }
-    
-    // Check if the user's account is suspended
     if (user.SuspendStatus === 'suspended') {
       return res.status(403).json({ error: 'Your account has been suspended. Please contact the administrator.' });
     }
@@ -251,6 +249,7 @@ const isValidPassword = (password) => {
 const logout = (req, res) => {
   res.json({ message: 'Logout successful' });
 }
+
 const PaymentController = async (req, res) => {
   try {
     const { cardType, cardNumber, cardPIN, expirationDate, billingAddress, city, state, zipCode } = req.body;

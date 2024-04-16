@@ -287,3 +287,17 @@ exports.updateTicketPrice = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
+
+exports.getTicketPriceByType = async (req, res) => {
+  const { type } = req.params;
+  try {
+    const ticketPrice = await movieModel.getTicketPriceByType(type);
+    res.json(ticketPrice);
+  } catch (err) {
+    console.error(err.message);
+    if (err.message === 'Ticket Price not found') {
+      return res.status(404).json({ msg: 'Ticket Price not found' });
+    }
+    res.status(500).send('Server Error');
+  }
+};
