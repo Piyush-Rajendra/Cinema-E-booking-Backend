@@ -32,6 +32,26 @@ const createUsersTable = () => {
     });
   });
 };
+const createTableQuery = `
+    CREATE TABLE IF NOT EXISTS promotions (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      promoCode VARCHAR(255) NOT NULL,
+      description TEXT,
+      percentoffPromo BOOLEAN,
+      valueoffPromo BOOLEAN,
+      percentoff FLOAT DEFAULT 0,
+      valueoff FLOAT DEFAULT 0
+    )
+  `;
+  
+  db.query(createTableQuery, (err, result) => {
+    if (err) {
+      throw err;
+    }
+    console.log('Table created or already exists');
+  });
+  
 const suspendUser = async (id) => {
   return new Promise((resolve, reject) => {
     // First, fetch the current SuspendStatus of the user
@@ -70,14 +90,14 @@ const deleteUserById = (userId) => {
       if (err) {
         reject(err);
       } else {
-        // Check if any rows were affected by the delete operation
+
         if (result.affectedRows === 0) {
-          // If no rows were affected, it means the user with the provided ID doesn't exist
+   
           const error = new Error('User not found');
           error.statusCode = 404;
           reject(error);
         } else {
-          // If rows were affected, it means the user was successfully deleted
+ 
           resolve('User deleted successfully');
         }
       }
@@ -86,7 +106,7 @@ const deleteUserById = (userId) => {
 };
 
 
-// Function to create payment_info table
+
 const createPaymentInfoTable = () => {
   return new Promise((resolve, reject) => {
     db.query(`
@@ -134,19 +154,6 @@ const billingAddress = () => {
     });
   });
 };
-
-
-
-// Function to create both tables
-const createTables = async () => {
-  try {
-    await createUsersTable();
-    await createPaymentInfoTable();
-  } catch (err) {
-    throw err;
-  }
-};
-
 
 const insertUser = (userData) => {
   return new Promise((resolve, reject) => {
@@ -363,7 +370,7 @@ const checkEmailExists = async (email) => {
 const updateUser = (userID, userData) => {
   return new Promise((resolve, reject) => {
       const updateUserQuery =
-          'UPDATE users SET fullName = ?, username = ?,  profilePhoto = ?, street = ?, city = ?, state = ?, zipCode = ?, phoneNumber = ? WHERE id = ?';
+          'UPDATE users SET fullName = ?, username = ?,  profilePhoto = ?, street = ?, city = ?, state = ?, zipCode = ?, phoneNumber = ?, subscribeToPromotion = ? WHERE id = ?';
 
       db.query(
           updateUserQuery,
@@ -376,6 +383,7 @@ const updateUser = (userID, userData) => {
               userData.state,
               userData.zipCode,
               userData.phoneNumber,
+              userData.subscribeToPromotion,
               userID
           ],
           (err, results) => {
@@ -466,25 +474,7 @@ const getPaymentByID = async (ID) => {
   });
 };
 
-const createTableQuery = `
-    CREATE TABLE IF NOT EXISTS promotions (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      name VARCHAR(255) NOT NULL,
-      promoCode VARCHAR(255) NOT NULL,
-      description TEXT,
-      percentoffPromo BOOLEAN,
-      valueoffPromo BOOLEAN,
-      percentoff FLOAT DEFAULT 0,
-      valueoff FLOAT DEFAULT 0
-    )
-  `;
-  
-  db.query(createTableQuery, (err, result) => {
-    if (err) {
-      throw err;
-    }
-    console.log('Table created or already exists');
-  });
+
 
   const createPromotion = ({ name, promoCode, description, percentoffPromo, valueoffPromo, percentoff, valueoff }, callback) => {
     const insertQuery = `
@@ -606,6 +596,14 @@ const createTableQuery = `
     });
   };
 
+  const createTables = async () => {
+    try {
+      await createUsersTable();
+      await createPaymentInfoTable();
+    } catch (err) {
+      throw err;
+    }
+  };
 
 module.exports = {
   createUsersTable,
