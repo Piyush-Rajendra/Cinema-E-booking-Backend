@@ -271,9 +271,9 @@ const getUserByID = async (id) => {
   }
 
 
-const addPayment = ( cardType, cardNumberHash, cardPINHash, expirationDate,) => {
+const addPayment = ( userId, cardType, cardNumberHash, cardPINHash, expirationDate,) => {
   return new Promise((resolve, reject) => {
-    db.query('INSERT INTO payment_info (cardType, cardNumberHash, cardPINHash, expirationDate) VALUES (?, ?, ?, ?)', [cardType, cardNumberHash, cardPINHash, expirationDate], (err, result) => {
+    db.query('INSERT INTO payment_info (userId, cardType, cardNumberHash, cardPINHash, expirationDate) VALUES (?, ?, ?, ?, ?)', [userId, cardType, cardNumberHash, cardPINHash, expirationDate], (err, result) => {
       if (err) {
         reject(err);
       } else {
