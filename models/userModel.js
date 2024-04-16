@@ -296,9 +296,9 @@ const addbillingAddress = (userId, billingAddress, city, state, zipCode) => {
 };
 
 
-const updatePayment = (userId, cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode) => {
+const updatePayment = (userId, cardType, cardNumberHash, cardPINHash, expirationDate) => {
   return new Promise((resolve, reject) => {
-    db.query('UPDATE payment_info SET cardType = ?, cardNumberHash = ?, cardPINHash = ?, expirationDate = ?, billingAddress = ?, city = ?, state = ?, zipCode = ? WHERE userId = ?', [cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode, userId], (err, result) => {
+    db.query('UPDATE payment_info SET cardType = ?, cardNumberHash = ?, cardPINHash = ?, expirationDate = ? WHERE userId = ?', [cardType, cardNumberHash, cardPINHash, expirationDate, userId], (err, result) => {
       if (err) {
         reject(err);
       } else {

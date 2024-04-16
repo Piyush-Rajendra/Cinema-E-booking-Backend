@@ -318,10 +318,10 @@ const isNumeric = (str) => {
   
   const updatePaymentInfo = async (req, res) => {
     const { userId } = req.params;
-    const { cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode } = req.body;
+    const { cardType, cardNumberHash, cardPINHash, expirationDate} = req.body;
     
     try {
-      const result = await userModel.updatePayment(userId, cardType, cardNumberHash, cardPINHash, expirationDate, billingAddress, city, state, zipCode);
+      const result = await userModel.updatePayment(userId, cardType, cardNumberHash, cardPINHash, expirationDate);
       res.status(200).json({ message: 'Payment information updated successfully', data: result });
     } catch (error) {
       res.status(500).json({ error: error.message });

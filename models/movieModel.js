@@ -312,7 +312,7 @@ const updateMovieStatusById = (movieId, MovieStatus) => {
           reject(error);
         } else {
           if (result.affectedRows === 0) {
-            resolve({ message: 'No movies updated. Invalid movie ID or status.' });
+            resolve({ message: 'No movies updated. Invalid movie ID or status.', movieId, MovieStatus });
           } else {
             resolve({ message: `Updated movie with ID ${movieId} to '${MovieStatus}'.` });
           }

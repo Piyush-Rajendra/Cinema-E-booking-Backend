@@ -317,11 +317,11 @@ exports.updateMovieStatusController = async (req, res) => {
 };
 
 exports.updateMovieStatusControllerById = async (req, res) => {
-  const {movieId} = req.params;
+ const {movieId} = req.params;
   const { MovieStatus } = req.body;
 
   try {
-    const result = await movieModel.updateMovieStatus(movieId, MovieStatus);
+    const result = await movieModel.updateMovieStatusById(movieId, MovieStatus);
     res.json(result);
   } catch (error) {
     console.error('Error updating movie status:', error);
