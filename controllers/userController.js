@@ -129,6 +129,27 @@ const verifyEmail = async (req, res) => {
   }
 };
 
+const deleteUserById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await userModel.deleteUserById(id);
+    res.status(200).json({ message: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const suspendUserController = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await userModel.suspendUser(id);
+    res.status(200).json({ message: 'User suspended successfully.' });
+  } catch (error) {
+    res.status(500).json({ error: 'Unable to suspend user.' });
+  }
+};
+
 
 
 const signIn = async (req, res) => {
@@ -468,14 +489,18 @@ const isNumeric = (str) => {
       });
     };
 
-    const createBillingAddress = async (req, res, next) => {
+    const addBillingAddress = async (req, res, next) => {
       try {
         const { userId } = req.params;
-        const billingAddressData = req.body;
-        billingAddressData.userId = userId;
-        const newBillingAddressId = await userModel.createBillingAddress(billingAddressData);
-        res.status(201).json({ id: newBillingAddressId });
+        const { billingAddress, city, state, zipCode } = req.body;
+        
+        // Call the model function to add the billing address
+        const result = await userModel.addbillingAddress(userId, billingAddress, city, state, zipCode);
+        
+        // Send the response
+        res.status(201).json({ message: 'Billing address added successfully', result });
       } catch (error) {
+        // Handle errors
         next(error);
       }
     };
@@ -539,8 +564,10 @@ module.exports = {
   deletePromotion,
   getAllPromotions,
   getPromotionByPromoCode,
-  createBillingAddress,
+  addBillingAddress,
   updateBillingAddress,
   deleteBillingAddress,
   getBillingAddressByUserId,
+  deleteUserById,
+  suspendUserController
 };

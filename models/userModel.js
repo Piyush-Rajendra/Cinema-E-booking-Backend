@@ -32,6 +32,44 @@ const createUsersTable = () => {
   });
 };
 
+const suspendUser = async (id) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `UPDATE users SET SuspendStatus = 'inactive' WHERE id = ?`,
+      [id],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+  });
+};
+
+const deleteUserById = (userId) => {
+  return new Promise((resolve, reject) => {
+    db.query('DELETE FROM users WHERE id = ?', userId, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        // Check if any rows were affected by the delete operation
+        if (result.affectedRows === 0) {
+          // If no rows were affected, it means the user with the provided ID doesn't exist
+          const error = new Error('User not found');
+          error.statusCode = 404;
+          reject(error);
+        } else {
+          // If rows were affected, it means the user was successfully deleted
+          resolve('User deleted successfully');
+        }
+      }
+    });
+  });
+};
+
+
 // Function to create payment_info table
 const createPaymentInfoTable = () => {
   return new Promise((resolve, reject) => {
@@ -191,7 +229,7 @@ const getUserByID = async (userID) => {
 
   const DeletepaymentInfoId = async(id) => {
     return new Promise((resolve, reject) => {
-      db.query('DELETE FROM payment_info WHERE paymentId = ?', [id], (err, result) => {
+      db.query('DELETE FROM payment_info WHERE id = ?', [id], (err, result) => {
         if (err) {
           reject(err);
         } else {
@@ -214,9 +252,9 @@ const addPayment = (userId, cardType, cardNumberHash, cardPINHash, expirationDat
   });
 };
 
-const addbillingAddress = (userId, billingAddress, city, state, zipCode, payment_info_id) => {
+const addbillingAddress = (userId, billingAddress, city, state, zipCode) => {
   return new Promise((resolve, reject) => {
-    db.query('INSERT INTO billingaddress ( billingAddress, city, state, zipCode, userId,payment_info_id) VALUES (?, ?, ?, ?, ?, ?)', [billingAddress, city, state, zipCode,userId, payment_info_id], (err, result) => {
+    db.query('INSERT INTO billingaddress ( billingAddress, city, state, zipCode, userId) VALUES (?, ?, ?, ?, ?)', [billingAddress, city, state, zipCode,userId], (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -486,43 +524,58 @@ const createTableQuery = `
     });
   };
 
-  const createBillingAddress = async (billingAddressData) => {
-    try {
+  const createBillingAddress = (billingAddressData) => {
+    return new Promise((resolve, reject) => {
       const { billingAddress, city, state, zipCode, userId } = billingAddressData;
-      const result = await db.query('INSERT INTO billingAddress (billingAddress, city, state, zipCode, userId) VALUES (?, ?, ?, ?, ?)', 
-                                    [billingAddress, city, state, zipCode, userId]);
-      return result.insertId;
-    } catch (error) {
-      throw error;
-    }
+      db.query('INSERT INTO billingAddress (billingAddress, city, state, zipCode, userId) VALUES (?, ?, ?, ?, ?)', 
+                [billingAddress, city, state, zipCode, userId], (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result.insertId);
+        }
+      });
+    });
   };
   
-  const updateBillingAddress = async (billingAddressId, newData) => {
-    try {
+  const updateBillingAddress = (billingAddressId, newData) => {
+    return new Promise((resolve, reject) => {
       const { billingAddress, city, state, zipCode, userId } = newData;
-      await db.query('UPDATE billingAddress SET billingAddress = ?, city = ?, state = ?, zipCode = ? WHERE id = ?', 
-                     [billingAddress, city, state, zipCode, userId, billingAddressId]);
-    } catch (error) {
-      throw error;
-    }
+      db.query('UPDATE billingAddress SET billingAddress = ?, city = ?, state = ?, zipCode = ? WHERE id = ?', 
+                 [billingAddress, city, state, zipCode, billingAddressId], (error) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      });
+    });
   };
   
-  const deleteBillingAddress = async (billingAddressId) => {
-    try {
-      await db.query('DELETE FROM billingAddress WHERE id = ?', billingAddressId);
-    } catch (error) {
-      throw error;
-    }
+  const deleteBillingAddress = (billingAddressId) => {
+    return new Promise((resolve, reject) => {
+      db.query('DELETE FROM billingAddress WHERE id = ?', billingAddressId, (error) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      });
+    });
   };
   
-  const getBillingAddressByUserId = async (userId) => {
-    try {
-      const rows = await db.query('SELECT * FROM billingAddress WHERE userId = ?', userId);
-      return rows;
-    } catch (error) {
-      throw error;
-    }
+  const getBillingAddressByUserId = (userId) => {
+    return new Promise((resolve, reject) => {
+      db.query('SELECT * FROM billingAddress WHERE userId = ?', userId, (error, rows) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
   };
+
 
 module.exports = {
   createUsersTable,
@@ -532,6 +585,7 @@ module.exports = {
   checkUsernameExists,
   getUserByEmail,
   checkUserExists,
+  deleteUserById,
   addPayment,
   updatePayment,
   getUserByID,
@@ -555,4 +609,5 @@ module.exports = {
   updateBillingAddress,
   deleteBillingAddress,
   getBillingAddressByUserId,
+  suspendUser,
 };
