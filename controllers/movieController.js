@@ -249,3 +249,41 @@ exports.deleteMovie = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+exports.getAllTicketPrices = async (req, res) => {
+  try {
+    const ticketPrices = await movieModel.getAllTicketPrices();
+    res.json(ticketPrices);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+// Create new ticket price
+exports.createTicketPrice = async (req, res) => {
+  const { type, price } = req.body;
+  try {
+    const newTicketPriceId = await movieModel.createTicketPrice(type, price);
+    res.json({ id: newTicketPriceId, type, price });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+// Update ticket price
+exports.updateTicketPrice = async (req, res) => {
+  const { type } = req.params;
+  const { price } = req.body;
+  try {
+    const rowsAffected = await movieModel.updateTicketPrice(type, price);
+    if (rowsAffected === 0) {
+      return res.status(404).json({ msg: 'Ticket Price not found' });
+    }
+    res.json({ msg: 'Ticket Price updated successfully' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};

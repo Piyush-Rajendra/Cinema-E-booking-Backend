@@ -241,6 +241,44 @@ const createTables = async () => {
 
 
 
+const TicketPrice = {};
+
+// Get all ticket prices
+const getAllTicketPrices = () => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM ticket_prices', (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(results);
+    });
+  });
+};
+
+// Create new ticket price
+const createTicketPrice = (type, price) => {
+  return new Promise((resolve, reject) => {
+    db.query('INSERT INTO ticket_prices (type, price) VALUES (?, ?)', [type, price], (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(results.insertId);
+    });
+  });
+};
+
+// Update ticket price
+const updateTicketPrice = (type, price) => {
+  return new Promise((resolve, reject) => {
+    db.query('UPDATE ticket_prices SET price = ? WHERE type = ?', [price, type], (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(results.affectedRows);
+    });
+  });
+};
+
 
 module.exports = {
   createMoviesTable,
@@ -257,6 +295,9 @@ module.exports = {
   getAllCategories,
   getMoviesByCategory,
   deleteMovieById,
-  updateMovie
+  updateMovie,
+ getAllTicketPrices,
+ updateTicketPrice,
+createTicketPrice
 };
 

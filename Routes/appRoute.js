@@ -15,4 +15,7 @@ router.post('/movies/categories', movieController.createCategory);
 router.get('/movies/categories', movieController.getCategories);
 router.delete('/movies/:id', movieController.deleteMovie);
 router.put('/movies/:id', movieController.updateMovieController);
+router.get('/ticket-prices', movieController.getAllTicketPrices);
+router.post('/ticket-prices', movieController.createTicketPrice);
+router.put('/ticket-prices/:type', movieController.updateTicketPrice);
 module.exports = router;
