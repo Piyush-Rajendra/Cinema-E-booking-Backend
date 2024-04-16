@@ -233,6 +233,7 @@ const getUserById = (userId, callback) => {
 
 
 const getUserByID = async (id) => {
+  id1 = id
   return new Promise((resolve, reject) => {
     db.query('SELECT * FROM users WHERE id = ?', [id], (err, results) => {
       if (err) {
@@ -349,7 +350,7 @@ const checkEmailExists = async (email) => {
 const updateUser = (userID, userData) => {
   return new Promise((resolve, reject) => {
       const updateUserQuery =
-          'UPDATE users SET fullName = ?, username = ?, profilePhoto = ?, street = ?, city = ?, state = ?, zipCode = ?, registerForPromotion = ?, phoneNumber = ? WHERE id = ?';
+          'UPDATE users SET fullName = ?, username = ?, profilePhoto = ?, email=? street = ?, city = ?, state = ?, zipCode = ?, phoneNumber = ? WHERE id = ?';
 
       db.query(
           updateUserQuery,
@@ -361,8 +362,8 @@ const updateUser = (userID, userData) => {
               userData.city,
               userData.state,
               userData.zipCode,
-              userData.registerForPromotion,
               userData.phoneNumber,
+              userData.email,
               userID
           ],
           (err, results) => {
