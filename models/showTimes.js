@@ -80,9 +80,9 @@ const addBookedSeats = (showtimeId, seats) => {
 
 const createOrderHistory = (orderData) => {
     return new Promise((resolve, reject) => {
-        const { userId, movieName, price, showDate, cardType } = orderData;
-        db.query('INSERT INTO order_history (userId, movieName, price, showDate, cardType) VALUES (?, ?, ?, ?, ?)', 
-            [userId, movieName, price, showDate, cardType], 
+        const { userId, movieName, price, showDate, cardType, number_of_tickets } = orderData;
+        db.query('INSERT INTO order_history (userId, movieName, price, showDate, cardType, number_of_tickets) VALUES (?, ?, ?, ?, ?, ?)', 
+            [userId, movieName, price, showDate, cardType,number_of_tickets], 
             (err, result) => {
                 if (err) {
                     reject(err);

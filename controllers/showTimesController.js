@@ -80,7 +80,7 @@ exports.addReservation = async (req, res) => {
 
 exports.storeOrderHistory = async (req, res) => {
     try {
-        const { userId, movieName, price, showDate, cardType } = req.body;
+        const { userId, movieName, price, showDate, cardType, number_of_tickets } = req.body;
 
         // Store order history in the database
         await showTimesModel.createOrderHistory({
@@ -88,7 +88,8 @@ exports.storeOrderHistory = async (req, res) => {
             movieName,
             price,
             showDate,
-            cardType
+            cardType,
+            number_of_tickets
         });
 
         res.json({ message: 'Order history stored successfully' });

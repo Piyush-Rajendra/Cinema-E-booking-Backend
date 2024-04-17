@@ -470,6 +470,16 @@ const  updateUserDetailsnoEmail= async (req, res) => {
 
 
 
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      auth: {
+        user: 'ecinemabooking387@gmail.com',
+        pass: process.env.password,
+      },
+    });
+    
     const createPromotion = (req, res) => {
       const { name, promoCode, description, percentoffPromo, valueoffPromo, percentoff, valueoff } = req.body;
       userModel.createPromotion({ name, promoCode, description, percentoffPromo, valueoffPromo, percentoff, valueoff }, (err, id) => {
