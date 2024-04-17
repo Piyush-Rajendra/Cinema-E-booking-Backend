@@ -54,51 +54,24 @@ exports.getMovies = async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
-
-   exports.updateMovieController = async (req, res) => {
-    const movieId = req.params.id; // Assuming the movie ID is passed as a route parameter
-    const {
-      title,
-      category,
-      cast,
-      director,
-      producer,
-      synopsis,
-      trailerPicture,
-      trailerVideo,
-      mpaaRating,
-      releaseDate,
-      showDatesTimes,
-      MovieStatus,
-      posterBase64,
-      end_date
-    } = req.body;
-  
+  exports.updateMovie = async (req, res) => {
     try {
-      await movieModel.updateMovie(
-        movieId,
-        title,
-        category,
-        cast,
-        director,
-        producer,
-        synopsis,
-        trailerPicture,
-        trailerVideo,
-        mpaaRating,
-        releaseDate,
-        showDatesTimes,
-        MovieStatus,
-        posterBase64,
-        end_date
-      );
+      const { id } = req.params; // Assuming id is passed as a route parameter
+      const { title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, end_date } = req.body;
   
-      res.status(200).json({ message: 'Movie updated successfully' });
+      // Ensure releaseDate and end_date are formatted correctly as strings for MySQL DATE type
+   
+  
+      // Execute the SQL query
+      const result = movieModel.updateMovie(id, title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, end_date);
+  
+      res.status(200).json({ success: true, message: 'Movie updated successfully', data: id, title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, end_date });
     } catch (error) {
       console.error('Error updating movie:', error);
-      res.status(500).json({ error: 'Failed to update movie' });
+      res.status(500).json({ success: false, message: 'Internal server error' });
     }
   };
+  
   
   exports.createCategory = async (req, res) => {
     try {

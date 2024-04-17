@@ -31,19 +31,22 @@ const createMoviesTable = () => {
 });
 };
 
-const updateMovie = (movieId, title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, end_date) => {
+const updateMovie = (id, title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, end_date) => {
   return new Promise((resolve, reject) => {
-    db.query('UPDATE movies SET title = ?, category = ?, cast = ?, director = ?, producer = ?, synopsis = ?, trailerPicture = ?, trailerVideo = ?, mpaaRating = ?, releaseDate = ?, posterBase64 = ?, showDatesTimes = ?, MovieStatus = ?, end_date = ? WHERE id = ?', 
-    [title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, movieId, end_date], 
-    (err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result);
+    db.query(
+      'UPDATE movies SET title = ?, category = ?, cast = ?, director = ?, producer = ?, synopsis = ?, trailerPicture = ?, trailerVideo = ?, mpaaRating = ?, releaseDate = ?, posterBase64 = ?, showDatesTimes = ?, MovieStatus = ?, end_date = ? WHERE id = ?', 
+      [title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, posterBase64, showDatesTimes, MovieStatus, end_date, id], 
+      (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
       }
-    });
+    );
   });
 };
+
 
 
 // Function to insert a new category into the database
