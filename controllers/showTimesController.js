@@ -28,6 +28,15 @@ exports.addShowtime = async (req, res) => {
     }
 };
 
+exports.getShowtimesByMovieIdController = async (req, res) => {
+    const { movieId } = req.params;
+    try {
+        const showtimes = await showTimesModel.getShowtimesByMovieId(movieId);
+        res.json(showtimes);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
 exports.getBookedSeatsHandler = async (req, res) => {
     try {
         const { showtimeId } = req.params;

@@ -14,6 +14,18 @@ const createShowtime = (showtimeData) => {
         });
     });
   };
+  const getShowtimesByMovieId = (movieId) => {
+    return new Promise((resolve, reject) => {
+        db.query('SELECT * FROM showtime WHERE movieId = ?', [movieId], (err, results) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(results);
+            }
+        });
+    });
+};
+
 
   const getBookedSeats = (showtimeId) => {
     return new Promise((resolve, reject) => {
@@ -101,5 +113,6 @@ module.exports  = {
     addReservation,
     addBookedSeats,
     createOrderHistory,
-    getOrderHistory
+    getOrderHistory,
+    getShowtimesByMovieId
 }
