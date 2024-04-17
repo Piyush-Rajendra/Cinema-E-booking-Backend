@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const authRoutes = require('./Routes/userRoutes');
 const adminRoutes = require('./Routes/adminRoutes');
+const showTimesRoutes = require('./Routes/showTimesRoutes');
 const appRoutes = require('./Routes/appRoute');
 const userModel = require('./models/userModel');
 const adminModel = require('./models/adminModel');
@@ -17,6 +18,8 @@ app.use(bodyParser.json());
 app.use(authRoutes);
 app.use(adminRoutes);
 app.use(appRoutes);
+app.use(showTimesRoutes);
+
 
 
 app.use(bodyParser.json({ limit: '10mb' }));

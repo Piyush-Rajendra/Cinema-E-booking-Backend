@@ -63,6 +63,8 @@ const insertCategory = async (categoryData) => {
   });
 };
 
+
+
 // Function to fetch all categories from the database
 const getAllCategories = () => {
   return new Promise((resolve, reject) => {
