@@ -68,7 +68,7 @@ const signUp = async (req, res) => {
       zipCode,
       status: 'inactive',
       verificationToken,
-      subscribeToPromotion: 'yes',
+      subscribeToPromotion,
       phoneNumber,
     });
 
