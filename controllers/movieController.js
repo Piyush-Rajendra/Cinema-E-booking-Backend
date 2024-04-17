@@ -27,7 +27,8 @@ exports.getMovies = async (req, res) => {
         releaseDate,
         MovieStatus,
         showDatesTimes,
-        posterBase64  
+        posterBase64,
+        end_date  
       } = req.body;
 
       await movieModel.insertMovie({
@@ -43,7 +44,8 @@ exports.getMovies = async (req, res) => {
         releaseDate,
         MovieStatus,
         showDatesTimes,
-        posterBase64  
+        posterBase64,
+        end_date
       });
 
       res.json({ message: 'Movie added successfully' });
@@ -68,7 +70,8 @@ exports.getMovies = async (req, res) => {
       releaseDate,
       showDatesTimes,
       MovieStatus,
-      posterBase64
+      posterBase64,
+      end_date
     } = req.body;
   
     try {
@@ -86,7 +89,8 @@ exports.getMovies = async (req, res) => {
         releaseDate,
         showDatesTimes,
         MovieStatus,
-        posterBase64
+        posterBase64,
+        end_date
       );
   
       res.status(200).json({ message: 'Movie updated successfully' });
@@ -151,6 +155,16 @@ exports.getReviewsForMovie = async (req, res) => {
   }
 };
 
+exports.getMoviesByDate = async (req, res) => {
+  try {
+    const { date } = req.query;
+    const movies = await movieModel.getMoviesByDate(date);
+    res.json(movies);
+  } catch (error) {
+    console.error('Error fetching movies:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 
 exports.getMovieById = async (req, res) => {

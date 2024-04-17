@@ -14,10 +14,11 @@ const createMoviesTable = () => {
       trailerPicture TEXT,
       trailerVideo TEXT,
       mpaaRating VARCHAR(10),
-      releaseDate Date,
+      releaseDate DATE,
       showDatesTimes Text,
       MovieStatus VARCHAR(255),
-      posterBase64 TEXT 
+      posterBase64 TEXT,
+      end_date DATE 
     )
   `,
   (err) => {
@@ -30,10 +31,10 @@ const createMoviesTable = () => {
 });
 };
 
-const updateMovie = (movieId, title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus) => {
+const updateMovie = (movieId, title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, end_date) => {
   return new Promise((resolve, reject) => {
-    db.query('UPDATE movies SET title = ?, category = ?, cast = ?, director = ?, producer = ?, synopsis = ?, trailerPicture = ?, trailerVideo = ?, mpaaRating = ?, releaseDate = ?, showDatesTimes = ?, posterBase64 = ?, MovieStatus = ? WHERE id = ?', 
-    [title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, movieId], 
+    db.query('UPDATE movies SET title = ?, category = ?, cast = ?, director = ?, producer = ?, synopsis = ?, trailerPicture = ?, trailerVideo = ?, mpaaRating = ?, releaseDate = ?, posterBase64 = ?, showDatesTimes = ?, MovieStatus = ?, end_date = ? WHERE id = ?', 
+    [title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, movieId, end_date], 
     (err, result) => {
       if (err) {
         reject(err);
@@ -114,7 +115,7 @@ const createReviewsTable = () => {
 
 const insertMovie = (movieData) => {
   return db.query(
-    'INSERT INTO movies (title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?)',
+    'INSERT INTO movies (title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, end_date) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?)',
     [
       movieData.title,
       movieData.category,
@@ -128,7 +129,8 @@ const insertMovie = (movieData) => {
       movieData.releaseDate,
       movieData.showDatesTimes,
       movieData.posterBase64,
-      movieData.MovieStatus
+      movieData.MovieStatus,
+      movieData.end_date
 
     ]
   );
@@ -324,6 +326,23 @@ const updateMovieStatusById = (movieId, MovieStatus) => {
   });
 };
 
+const getMoviesByDate = (date) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      'SELECT * FROM movies WHERE ? BETWEEN releaseDate AND end_date',
+      [date],
+      (err, results) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve(results);
+      }
+    );
+  });
+};
+
+
 const createTables = async () => {
   try {
     await createMoviesTable();
@@ -355,6 +374,7 @@ module.exports = {
   createTicketPrice,
   updateMovieStatus,
   getTicketPriceByType,
-  updateMovieStatusById
+  updateMovieStatusById,
+  getMoviesByDate
 };
 

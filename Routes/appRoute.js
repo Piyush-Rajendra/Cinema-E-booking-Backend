@@ -21,4 +21,5 @@ router.put('/ticket-prices/:type', movieController.updateTicketPrice);
 router.get('/ticket-prices/:type', movieController.getTicketPriceByType);
 router.put('/update-status', movieController.updateMovieStatusController);
 router.put('/update-statusById/:movieId', movieController.updateMovieStatusControllerById);
+router.get('/moviesByQuery', movieController.getMoviesByDate);
 module.exports = router;
