@@ -16,7 +16,7 @@ const createShowtime = (showtimeData) => {
   };
   const getShowtimesByMovieId = (movieId) => {
     return new Promise((resolve, reject) => {
-        db.query('SELECT * FROM showtime WHERE movieId = ?', [movieId], (err, results) => {
+        db.query('SELECT startAt FROM showtime WHERE movieId = ?', [movieId], (err, results) => {
             if (err) {
                 reject(err);
             } else {
