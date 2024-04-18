@@ -111,30 +111,23 @@ exports.addReservation = async (req, res) => {
     }
 };
 // Controller function to check if seats are occupied
-exports.checkOccupiedSeats = (showtimeId, seats) => {
-    return new Promise((resolve, reject) => {
-        // Convert seat numbers into a flat array
-        const seatArray = seats.flatMap(seatGroup => seatGroup.split(',').map(seat => seat.trim()));
-
-        // Check if selected seats are already booked for the given showtime
-        const selectOccupiedSeatsSql = `SELECT seatNumber FROM bookedSeat WHERE showtimeId = ? AND seatNumber IN (${seatArray.map(() => '?').join(', ')})`;
+exports.checkOccupiedSeatsController = async (req, res) => {
+   
+    try {
+        const { showtimeId, seats } = req.body;
+        const conflictingSeats = await showTimesModel.checkOccupiedSeats(showtimeId, seats);
         
-        db.query(selectOccupiedSeatsSql, [showtimeId, ...seatArray], (err, occupiedSeatsResult) => {
-            if (err) return reject(err);
-
-            const occupiedSeats = occupiedSeatsResult.map(row => row.seatNumber);
-
-            const conflictingSeats = seatArray.filter(seat => occupiedSeats.includes(seat));
-
-            if (conflictingSeats.length > 0) {
-                return reject(`Seats ${conflictingSeats.join(', ')} are already booked for the selected showtime.`);
-            }
-
-            resolve(conflictingSeats);
-        });
-    });
+        if (conflictingSeats.length > 0) {
+            res.status(409).json({ message: `Seats ${conflictingSeats.join(', ')} are already booked for the selected showtime.` });
+        } else {
+            console.log(seats)
+            res.status(200).json({ message: 'Selected seats are available.' });
+        }
+    } catch (error) {
+        console.error('Error checking occupied seats:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
 };
-
 
 exports.storeOrderHistory = async (req, res) => {
     try {

@@ -566,8 +566,9 @@ const createPromotion = async (req, res) => {
       });
     };
     
-   const getPromotionByPromoCode = (req, res) => {
-      const promoCode = req.params.promoCode;
+    const getPromotionByPromoCode = (req, res) => {
+      let promoCode = req.params.promoCode;
+      promoCode = promoCode.toUpperCase(); // Convert promoCode to uppercase
       userModel.getPromotionByPromoCode(promoCode, (err, promotion) => {
         if (err) {
           return res.status(500).json({ error: 'Internal Server Error' });
@@ -577,8 +578,8 @@ const createPromotion = async (req, res) => {
         }
         res.status(200).json(promotion);
       });
-    };
-
+    }
+    
     const addBillingAddress = async (req, res, next) => {
       try {
         const { userId } = req.params;
