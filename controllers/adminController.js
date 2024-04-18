@@ -9,17 +9,25 @@ const registerAdmin = require('../models/adminModel').registerAdmin;
 const createAdmin = async (req, res) => {
   const { username, password } = req.body;
 
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Username and password are required' });
+  }
+
+  if (typeof username !== 'string' || typeof password !== 'string') {
+    return res.status(400).json({ message: 'Username and password must be strings' });
+  }
+
+
   try {
     // Call the registerAdmin function from the model
     await registerAdmin(username, password);
    
-    res.status(201).json({ message: 'Admin registered successfully', });
+    res.status(201).json({ message: 'Admin registered successfully' });
   } catch (error) {
     console.error('Error registering admin:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
-
 
 
 const adminSignIn = async (req, res) => {

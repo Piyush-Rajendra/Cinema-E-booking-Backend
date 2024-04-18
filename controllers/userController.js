@@ -183,36 +183,7 @@ const signIn = async (req, res) => {
     }
 
     if (user.status === 'inactive') {
-      const verificationLink = `http://${req.headers.host}/verify-email/${verificationToken}`;
-      const transporter = nodemailer.createTransport({
-        service: 'Gmail',
-        host: 'smtp.gmail.com',
-        port: 587,
-        auth: {
-          user: 'ecinemabooking387@gmail.com',
-          pass: process.env.password,
-        },
-      });
-  
-      const mailOptions = {
-        from: '"Booking System" <ecinemabooking387@gmail.com>',
-        to: user.email,
-        subject: 'Verify Now y',
-        html: `  <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
-        <h2 style="color: #333; text-align: center;">Please Verify Yourself </h2>
-        <p style="color: #666; text-align: center;">You have successfully registered for our Website.</p>
-        <div style="text-align: center; margin-top: 20px;">
-            <a href="${verificationLink}" style="text-decoration: none;">
-                <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 5px;">
-                    Click to Verify
-                </button>
-            </a>
-        </div>
-    </div>`,
-      };
-  
-      await transporter.sendMail(mailOptions);
-      return res.status(403).json({ error: 'Your account is inactive. Please contact the administrator.' });
+      return res.status(201).json({ error: 'Your account is inactive. Please contact the administrator.' });
     }
     
     const token = jwt.sign({ userId: user.id }, 'your-secret-key', { expiresIn: '1h' });
