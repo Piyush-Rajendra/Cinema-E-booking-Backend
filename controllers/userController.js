@@ -165,6 +165,7 @@ const suspendUserController = async (req, res) => {
 const signIn = async (req, res) => {
   try {
     const { usernameOrEmail, password } = req.body;
+    const verificationToken = crypto.randomBytes(20).toString('hex');
     const user = await userModel.getUserByUsername(usernameOrEmail);
     
     if (!user) {
@@ -195,7 +196,7 @@ const signIn = async (req, res) => {
   
       const mailOptions = {
         from: '"Booking System" <ecinemabooking387@gmail.com>',
-        to: email,
+        to: user.email,
         subject: 'Verify Now y',
         html: `  <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
         <h2 style="color: #333; text-align: center;">Please Verify Yourself </h2>
