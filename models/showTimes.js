@@ -8,15 +8,31 @@ const createShowtime = (showtimeData) => {
         if (!startAt || !startDate || !endDate || !movieId) {
             return reject('startAt, startDate, endDate, and movieId are required.');
         }
-        db.query('INSERT INTO showtime (startAt, startDate, endDate, movieId) VALUES (?,?,?,?)', [showtimeData.startAt, showtimeData.startDate, showtimeData.endDate, showtimeData.movieId], (err, result) => {
-            if (err) reject(err);
-            resolve(result.insertId);
+        
+        // Check if a showtime with the same startAt already exists for the given movieId
+        db.query('SELECT COUNT(*) AS count FROM showtime WHERE movieId = ? AND startAt = ?', [movieId, startAt], (err, results) => {
+            if (err) {
+                return reject(err);
+            }
+            const existingCount = results[0].count;
+            if (existingCount > 0) {
+                return reject('A showtime for this movie with the same start time already exists.');
+            }
+            
+            // If no existing showtime found, proceed to insert the new showtime
+            db.query('INSERT INTO showtime (startAt, startDate, endDate, movieId) VALUES (?,?,?,?)', [startAt, startDate, endDate, movieId], (err, result) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(result.insertId);
+            });
         });
     });
-  };
+};
+
   const getShowtimesByMovieId = (movieId) => {
     return new Promise((resolve, reject) => {
-        db.query('SELECT startAt FROM showtime WHERE movieId = ?', [movieId], (err, results) => {
+        db.query('SELECT startAt, id FROM showtime WHERE movieId = ?', [movieId], (err, results) => {
             if (err) {
                 reject(err);
             } else {
@@ -60,7 +76,6 @@ const deleteShowtime = (showtimeId) => {
         });
     });
 };
-
 const addReservation = (reservationData) => {
     return new Promise((resolve, reject) => {
         const { date, startAt, seats, ticketPrice, ticketType, total, movieId, username, phone, showtimeId } = reservationData;
@@ -68,19 +83,29 @@ const addReservation = (reservationData) => {
             return reject('Missing required fields.');
         }
 
+        // Split seat numbers into individual seats
+        const seatArray = seats.flatMap(seatGroup => seatGroup.split(',').map(seat => seat.trim()));
+
         // Check if selected seats are already booked for the given showtime
-        const selectOccupiedSeatsSql = 'SELECT seatNumber FROM BookedSeat WHERE showtimeId = ? AND seatNumber IN (?)';
-        db.query(selectOccupiedSeatsSql, [showtimeId, seats], (err, occupiedSeatsResult) => {
+        const selectOccupiedSeatsSql = `SELECT seatNumber FROM BookedSeat WHERE showtimeId = ? AND seatNumber IN (${seatArray.map(() => '?').join(', ')})`;
+        db.query(selectOccupiedSeatsSql, [showtimeId, ...seatArray], (err, occupiedSeatsResult) => {
             if (err) return reject(err);
             const occupiedSeats = occupiedSeatsResult.map(row => row.seatNumber);
-            const conflictingSeats = seats.filter(seat => occupiedSeats.includes(seat));
+
+            const conflictingSeats = [];
+            seatArray.forEach(seat => {
+                if (occupiedSeats.includes(seat)) {
+                    conflictingSeats.push(seat);
+                }
+            });
+
             if (conflictingSeats.length > 0) {
                 return reject(`Seats ${conflictingSeats.join(',')} are already booked for the selected showtime.`);
             }
 
             // If no conflicting seats, proceed with adding reservation
             const insertReservationSql = 'INSERT INTO Reservation (date, startAt, seats, ticketPrice, ticketType, total, movieId, username, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-            db.query(insertReservationSql, [date, startAt, JSON.stringify(seats), ticketPrice, ticketType, total, movieId, username, phone], (err, result) => {
+            db.query(insertReservationSql, [date, startAt, JSON.stringify(seatArray), ticketPrice, ticketType, total, movieId, username, phone], (err, result) => {
                 if (err) return reject(err);
                 const reservationId = result.insertId;
                 resolve(reservationId);
@@ -89,17 +114,49 @@ const addReservation = (reservationData) => {
     });
 }
 
-const addBookedSeats = (showtimeId, seats) => {
+const checkOccupiedSeats = (showtimeId, seats) => {
     return new Promise((resolve, reject) => {
-        seats.forEach(seat => {
-            const insertBookedSeatSql = 'INSERT INTO BookedSeat (showtimeId, seatNumber) VALUES (?, ?)';
-            db.query(insertBookedSeatSql, [showtimeId, seat], (err, result) => {
-                if (err) reject(err);
-            });
+        // Convert seat numbers into a flat array
+        const seatArray = seats.flatMap(seatGroup => seatGroup.split(',').map(seat => seat.trim()));
+
+        // Check if selected seats are already booked for the given showtime
+        const selectOccupiedSeatsSql = `SELECT seatNumber FROM BookedSeat WHERE showtimeId = ? AND seatNumber IN (${seatArray.map(() => '?').join(', ')})`;
+        
+        db.query(selectOccupiedSeatsSql, [showtimeId, ...seatArray], (err, occupiedSeatsResult) => {
+            if (err) return reject(err);
+
+            const occupiedSeats = occupiedSeatsResult.map(row => row.seatNumber);
+
+            const conflictingSeats = seatArray.filter(seat => occupiedSeats.includes(seat));
+
+            if (conflictingSeats.length > 0) {
+                return reject(`Seats ${conflictingSeats.join(', ')} are already booked for the selected showtime.`);
+            }
+
+            resolve(conflictingSeats);
         });
-        resolve();
     });
 };
+
+
+const addBookedSeats = (showtimeId, seats) => {
+    return new Promise((resolve, reject) => {
+        const promises = seats.map(seat => {
+            return new Promise((resolve, reject) => {
+                const insertBookedSeatSql = 'INSERT INTO bookedSeat (showtimeId, seatNumber) VALUES (?, ?)';
+                db.query(insertBookedSeatSql, [showtimeId, seat], (err, result) => {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            });
+        });
+
+        Promise.all(promises)
+            .then(() => resolve())
+            .catch(err => reject(err));
+    });
+};
+
 
 const createOrderHistory = (orderData) => {
     return new Promise((resolve, reject) => {
@@ -139,5 +196,6 @@ module.exports  = {
     getOrderHistory,
     getShowtimesByMovieId,
     updateShowtimeStartAt,
-    deleteShowtime
+    deleteShowtime,
+    checkOccupiedSeats
 }

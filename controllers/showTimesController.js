@@ -110,6 +110,31 @@ exports.addReservation = async (req, res) => {
         res.status(500).json({ error});
     }
 };
+// Controller function to check if seats are occupied
+exports.checkOccupiedSeats = (showtimeId, seats) => {
+    return new Promise((resolve, reject) => {
+        // Convert seat numbers into a flat array
+        const seatArray = seats.flatMap(seatGroup => seatGroup.split(',').map(seat => seat.trim()));
+
+        // Check if selected seats are already booked for the given showtime
+        const selectOccupiedSeatsSql = `SELECT seatNumber FROM bookedSeat WHERE showtimeId = ? AND seatNumber IN (${seatArray.map(() => '?').join(', ')})`;
+        
+        db.query(selectOccupiedSeatsSql, [showtimeId, ...seatArray], (err, occupiedSeatsResult) => {
+            if (err) return reject(err);
+
+            const occupiedSeats = occupiedSeatsResult.map(row => row.seatNumber);
+
+            const conflictingSeats = seatArray.filter(seat => occupiedSeats.includes(seat));
+
+            if (conflictingSeats.length > 0) {
+                return reject(`Seats ${conflictingSeats.join(', ')} are already booked for the selected showtime.`);
+            }
+
+            resolve(conflictingSeats);
+        });
+    });
+};
+
 
 exports.storeOrderHistory = async (req, res) => {
     try {
