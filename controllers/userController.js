@@ -479,16 +479,56 @@ const  updateUserDetailsnoEmail= async (req, res) => {
         pass: process.env.password,
       },
     });
+
+ 
+const createPromotion = async (req, res) => {
+  const { name, promoCode, description, percentoffPromo, valueoffPromo, percentoff, valueoff } = req.body;
+
+  try {
+    // Insert the promotion into the promotions table
+    await db.query(`
+      INSERT INTO promotions (name, promoCode, description, percentoffPromo, valueoffPromo, percentoff, valueoff)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `, [name, promoCode, description, percentoffPromo, valueoffPromo, percentoff, valueoff]);
+
+    // Fetch emails of subscribed users
+    const results = await userModel.getRecordsWithPromotionSubscription();
+    const emails = results.map((record) => record.email);
+    console.log("Emails of subscribed users:", emails);
+
+    // Send email to each subscribed user
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      auth: {
+        user: 'ecinemabooking387@gmail.com',
+        pass: process.env.password 
+      }
+    });
+
+    // Loop through each email and send email
+    for (const email of emails) {
+      const mailOptions = {
+        from: '"Booking System" <ecinemabooking387@gmail.com>',
+        to: email, 
+        subject: 'New Promotion Alert',
+        text: `Dear subscriber,\n\nWe have a new promotion available: ${name}\nPromo Code: ${promoCode}\nDescription: ${description}\n\nThank you for subscribing to our promotions!\n\nBest regards,\nBooking System`
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log(`Email sent to ${email}`);
+    }
+
+    // Respond with success message
+    res.status(201).json({ message: 'Promotion added successfully', subscribedUsers: emails });
+  } catch (error) {
+    console.error('Error executing MySQL queries:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
     
-    const createPromotion = (req, res) => {
-      const { name, promoCode, description, percentoffPromo, valueoffPromo, percentoff, valueoff } = req.body;
-      userModel.createPromotion({ name, promoCode, description, percentoffPromo, valueoffPromo, percentoff, valueoff }, (err, id) => {
-        if (err) {
-          return res.status(500).json({ error: 'Internal Server Error' });
-        }
-        res.status(201).json({ id });
-      });
-    };
+   
     
    const deletePromotion = (req, res) => {
       const promotionId = req.params.id;

@@ -27,6 +27,29 @@ const createShowtime = (showtimeData) => {
 };
 
 
+const updateShowtimeStartAt = (showtimeId, startAt) => {
+    return new Promise((resolve, reject) => {
+        if (!showtimeId || !startAt) {
+            return reject('showtimeId and newStartAt are required.');
+        }
+        db.query('UPDATE showtime SET startAt = ? WHERE id = ?', [startAt, showtimeId], (err, result) => {
+            if (err) reject(err);
+            resolve(result.affectedRows > 0); // Resolving true if affectedRows > 0 indicates a successful update
+        });
+    });
+};
+
+const deleteShowtime = (showtimeId) => {
+    return new Promise((resolve, reject) => {
+        if (!showtimeId) {
+            return reject('showtimeId is required.');
+        }
+        db.query('DELETE FROM showtime WHERE id = ?', [showtimeId], (err, result) => {
+            if (err) reject(err);
+            resolve(result.affectedRows > 0); // Resolving true if affectedRows > 0 indicates a successful deletion
+        });
+    });
+};
   const getBookedSeats = (showtimeId) => {
     return new Promise((resolve, reject) => {
         const sql = 'SELECT seatNumber FROM BookedSeat WHERE showtimeId = ?';
@@ -114,5 +137,7 @@ module.exports  = {
     addBookedSeats,
     createOrderHistory,
     getOrderHistory,
-    getShowtimesByMovieId
+    getShowtimesByMovieId,
+    updateShowtimeStartAt,
+    deleteShowtime
 }

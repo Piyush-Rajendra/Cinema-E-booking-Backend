@@ -28,6 +28,39 @@ exports.addShowtime = async (req, res) => {
     }
 };
 
+exports.updateShowtimeStartAtController = (req, res) => {
+    const {  startAt } = req.body;
+    const { showtimeId} = req.params;
+    showTimesModel.updateShowtimeStartAt(showtimeId, startAt)
+        .then((updated) => {
+            if (updated) {
+                res.status(200).json({ success: true, message: 'Showtime startAt updated successfully' });
+            } else {
+                console.log(showtimeId, startAt);
+                res.status(404).json({ success: false, message: 'No showtime found with the provided ID' });
+            }
+        })
+        .catch((err) => {
+            console.log(showtimeId, startAt);
+            res.status(500).json({ success: false, message: 'Error updating showtime startAt', error: err });
+        });
+};
+
+exports.deleteShowtimeController = (req, res) => {
+    const { showtimeId } = req.params;
+    showTimesModel.deleteShowtime(showtimeId)
+        .then((deleted) => {
+            if (deleted) {
+                res.status(200).json({ success: true, message: 'Showtime deleted successfully' });
+            } else {
+                res.status(404).json({ success: false, message: 'No showtime found with the provided ID' });
+            }
+        })
+        .catch((err) => {
+            res.status(500).json({ success: false, message: 'Error deleting showtime', error: err });
+        });
+};
+
 exports.getShowtimesByMovieIdController = async (req, res) => {
     const { movieId } = req.params;
     try {

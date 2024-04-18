@@ -462,6 +462,20 @@ const getPaymentByUserID = async (userID) => {
   });
 };
 
+const getRecordsWithPromotionSubscription = () => {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM users WHERE subscribeToPromotion = 'yes'";
+    db.query(query, (error, results) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+};
+
+
 const getPaymentByID = async (ID) => {
   return new Promise((resolve, reject) => {
     db.query('SELECT * FROM payment_info WHERE id = ?', [ID], (err, results) => {
@@ -638,5 +652,6 @@ module.exports = {
   getBillingAddressByUserId,
   suspendUser,
   getUserByID,
-  getUserByIDs
+  getUserByIDs,
+  getRecordsWithPromotionSubscription
 };
