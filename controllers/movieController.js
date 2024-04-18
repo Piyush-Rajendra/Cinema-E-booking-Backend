@@ -1,5 +1,6 @@
 // controllers/movieController.js
 const movieModel = require('../models/movieModel');
+const { PayloadTooLargeError } = require('http-errors');
 
 
 exports.getMovies = async (req, res) => {
@@ -61,15 +62,19 @@ exports.getMovies = async (req, res) => {
       const { id } = req.params; 
       const { title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, end_date } = req.body;
   
-      const result = movieModel.updateMovie(id, title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, end_date);
+      const result = await movieModel.updateMovie(id, title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, end_date);
   
-      res.status(200).json({ success: true, message: 'Movie updated successfully', data: id, title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, end_date });
+      res.status(200).json({ success: true, message: 'Movie updated successfully', data: { id, title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, end_date } });
     } catch (error) {
+      if (error instanceof PayloadTooLargeError) {
+        console.error('Payload too large:', error);
+        return res.status(413).json({ success: false, message: 'Request entity too large' });
+      }
+  
       console.error('Error updating movie:', error);
       res.status(500).json({ success: false, message: 'Internal server error' });
     }
   };
-  
   
   exports.createCategory = async (req, res) => {
     try {
