@@ -22,8 +22,8 @@ app.use(showTimesRoutes);
 
 
 
-app.use(bodyParser.json({ limit: '100mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '100mb' }));
+app.use(bodyParser.json({ limit: '100MB' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '100MB' }));
 
 userModel.createTables()
   .then(() => {
