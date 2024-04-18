@@ -165,9 +165,10 @@ const suspendUserController = async (req, res) => {
 const signIn = async (req, res) => {
   try {
     const { usernameOrEmail, password } = req.body;
-    const verificationToken = crypto.randomBytes(20).toString('hex');
+   
     const user = await userModel.getUserByUsername(usernameOrEmail);
-    
+    const verificationToken = user.verificationToken
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -183,6 +184,25 @@ const signIn = async (req, res) => {
     }
 
     if (user.status === 'inactive') {
+      const verificationLink = `http://${req.headers.host}/verify-email/${verificationToken}`;
+    const mailOptions = {
+      from: '"Booking System" <ecinemabooking387@gmail.com>',
+      to: user.email,
+      subject: 'Verify  Email',
+      html: `  <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+      <h2 style="color: #333; text-align: center;">Verify!</h2>
+      <p style="color: #666; text-align: center;">Please verify your Email.</p>
+      <div style="text-align: center; margin-top: 20px;">
+          <a href="${verificationLink}" style="text-decoration: none;">
+              <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 5px;">
+                  Click to Verify
+              </button>
+          </a>
+      </div>
+  </div>`,
+    };
+
+    await transporter.sendMail(mailOptions);
       return res.status(201).json({ error: 'Your account is inactive. Please contact the administrator.' });
     }
     

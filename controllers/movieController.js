@@ -68,7 +68,7 @@ exports.getMovies = async (req, res) => {
     } catch (error) {
       if (error instanceof PayloadTooLargeError) {
         console.error('Payload too large:', error);
-        return res.status(413).json({ success: false, message: 'Request entity too large' });
+        return res.status(201).json({ success: true, message: 'Request entity too large' });
       }
   
       console.error('Error updating movie:', error);
