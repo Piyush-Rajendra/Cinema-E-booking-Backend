@@ -177,7 +177,7 @@ exports.storeOrderHistory = async (req, res) => {
             const mailOptions = {
                 from: '"Booking System" <ecinemabooking387@gmail.com>',
                 to: email,
-                subject: 'Registration Successful',
+                subject: `Ticket Booked for ${movieName} Successful`,
                 html: `<div style="font-family: Arial, sans-serif; padding: 20px;">
                 <h2 style="color: #333;">Booking Confirmation</h2>
                 <p><strong>Movie Name:</strong> ${movieName}</p>

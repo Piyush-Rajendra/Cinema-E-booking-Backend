@@ -54,15 +54,13 @@ exports.getMovies = async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
+
+
   exports.updateMovie = async (req, res) => {
     try {
-      const { id } = req.params; // Assuming id is passed as a route parameter
+      const { id } = req.params; 
       const { title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, end_date } = req.body;
   
-      // Ensure releaseDate and end_date are formatted correctly as strings for MySQL DATE type
-   
-  
-      // Execute the SQL query
       const result = movieModel.updateMovie(id, title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, end_date);
   
       res.status(200).json({ success: true, message: 'Movie updated successfully', data: id, title, category, cast, director, producer, synopsis, trailerPicture, trailerVideo, mpaaRating, releaseDate, showDatesTimes, posterBase64, MovieStatus, end_date });

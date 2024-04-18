@@ -88,7 +88,17 @@ const signUp = async (req, res) => {
       from: '"Booking System" <ecinemabooking387@gmail.com>',
       to: email,
       subject: 'Registration Successful',
-      html: `Congratulations! You have successfully registered for our Website. <br>Click <a href="${verificationLink}"><button style="background-color:green;color:white;padding:10px;border:none;cursor:pointer;"> <br> Click to Verify</button></a> to verify your email.`,
+      html: `  <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+      <h2 style="color: #333; text-align: center;">Congratulations!</h2>
+      <p style="color: #666; text-align: center;">You have successfully registered for our Website.</p>
+      <div style="text-align: center; margin-top: 20px;">
+          <a href="${verificationLink}" style="text-decoration: none;">
+              <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 5px;">
+                  Click to Verify
+              </button>
+          </a>
+      </div>
+  </div>`,
     };
 
     await transporter.sendMail(mailOptions);
@@ -152,24 +162,34 @@ const suspendUserController = async (req, res) => {
 
 
 
-
 const signIn = async (req, res) => {
   try {
     const { usernameOrEmail, password } = req.body;
+    const verificationToken = crypto.randomBytes(20).toString('hex');
     const user = await userModel.getUserByUsername(usernameOrEmail);
+    
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
+    
     const passwordMatch = await bcrypt.compare(password, user.password);
+    
     if (!passwordMatch) {
       return res.status(401).json({ error: 'Incorrect password' });
     }
+    
     if (user.SuspendStatus === 'suspended') {
       return res.status(403).json({ error: 'Your account has been suspended. Please contact the administrator.' });
     }
+
+    if (user.status === 'inactive') {
+      return res.status(201).json({ error: 'Your account is inactive. Please contact the administrator.' });
+    }
     
     const token = jwt.sign({ userId: user.id }, 'your-secret-key', { expiresIn: '1h' });
+    
     res.json({ message: 'Login successful', token, user: { id: user.id, username: user.username } });
+    
     console.log(token);
   } catch (error) {
     console.error(error);
