@@ -1,7 +1,6 @@
 
 const db = require('../db');
 
-
 const createShowtime = (showtimeData) => {
     return new Promise((resolve, reject) => {
         const { startAt, startDate, endDate, movieId } = showtimeData;

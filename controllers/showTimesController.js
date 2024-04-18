@@ -1,4 +1,8 @@
 const showTimesModel = require('../models/showTimes');
+const nodemailer = require('nodemailer');
+require('dotenv').config();
+const db = require('../db');
+
 
 
 exports.addShowtime = async (req, res) => {
@@ -24,6 +28,9 @@ exports.addShowtime = async (req, res) => {
         res.json({ message: 'Showtime added successfully' });
     } catch (error) {
         console.error('Error adding showtime:', error);
+        if (error === 'A showtime for this movie with the same start time already exists.') {
+            return res.status(400).json({ error: error });
+        }
         res.status(500).json({ error: 'An unexpected error occurred while adding showtime.' });
     }
 };
@@ -133,17 +140,58 @@ exports.storeOrderHistory = async (req, res) => {
     try {
         const { userId, movieName, price, showDate, cardType, number_of_tickets } = req.body;
 
-        // Store order history in the database
-        await showTimesModel.createOrderHistory({
-            userId,
-            movieName,
-            price,
-            showDate,
-            cardType,
-            number_of_tickets
-        });
+        // Fetch user email from the database
+        const query = 'SELECT email FROM users WHERE id = ?';
+        db.query(query, [userId], async (err, results) => {
+            if (err) {
+                console.error('Error fetching user email:', err);
+                return res.status(500).json({ error: 'An unexpected error occurred while fetching user email' });
+            }
 
-        res.json({ message: 'Order history stored successfully' });
+            if (results.length === 0) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+
+            const email = results[0].email;
+
+            // Store order history in the database
+            await showTimesModel.createOrderHistory({
+                userId,
+                movieName,
+                price,
+                showDate,
+                cardType,
+                number_of_tickets
+            });
+
+            const transporter = nodemailer.createTransport({
+                service: 'Gmail',
+                host: 'smtp.gmail.com',
+                port: 587,
+                auth: {
+                    user: 'ecinemabooking387@gmail.com',
+                    pass: process.env.password,
+                },
+            });
+
+            const mailOptions = {
+                from: '"Booking System" <ecinemabooking387@gmail.com>',
+                to: email,
+                subject: 'Registration Successful',
+                html: `<div style="font-family: Arial, sans-serif; padding: 20px;">
+                <h2 style="color: #333;">Booking Confirmation</h2>
+                <p><strong>Movie Name:</strong> ${movieName}</p>
+                <p><strong>Show Date:</strong> ${showDate}</p>
+                <p><strong>Number of Tickets:</strong> ${number_of_tickets}</p>
+                <p><strong>Total Price:</strong> ${price}</p>
+                <hr style="border: 1px solid #ccc;">
+                <p style="color: #666;">Thank you for booking with us!</p>
+            </div>`,
+            };
+
+            await transporter.sendMail(mailOptions);
+            res.json({ message: 'Order history stored successfully' });
+        });
     } catch (error) {
         console.error('Error storing order history:', error);
         res.status(500).json({ error: 'An unexpected error occurred while storing order history' });
